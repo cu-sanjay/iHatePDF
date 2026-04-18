@@ -1,90 +1,83 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 
 const faqs = [
   {
-    id: "faq1",
-    question: "Is FileWizard really free to use?",
+    id: "q1",
+    question: "Is iHatePDF really free?",
     answer:
-      "Yes, FileWizard is completely free to use. We don't have any hidden fees or subscription plans. All our tools are accessible without any payment requirements.",
+      "Yes, completely. No hidden fees, no subscription, no account required. Every tool is accessible without any payment.",
   },
   {
-    id: "faq2",
-    question: "How secure is my data when using FileWizard?",
+    id: "q2",
+    question: "Do my files get uploaded anywhere?",
     answer:
-      "FileWizard processes all files directly in your browser. Your files never leave your device or get uploaded to any server. This ensures complete privacy and security for all your documents.",
+      "No. All processing runs entirely in your browser using JavaScript libraries. Your files never leave your device. We have zero access to your documents.",
   },
   {
-    id: "faq3",
-    question: "What's the maximum file size I can process?",
+    id: "q3",
+    question: "What's the maximum file size?",
     answer:
-      "The maximum file size depends on your device's memory and processing power. Generally, most tools can handle files up to 100MB, but this may vary. For optimal performance, we recommend files under 50MB.",
+      "It depends on your device's available memory. Most tools handle files up to 100MB comfortably. For best performance, we recommend files under 50MB.",
   },
   {
-    id: "faq4",
-    question: "Do I need to create an account to use FileWizard?",
+    id: "q4",
+    question: "Does the LaTeX Resume tool support full LaTeX?",
     answer:
-      "No, FileWizard doesn't require any account creation or login. You can use all our tools without registration, making it quick and convenient to process your files.",
+      "The LaTeX Resume tool supports the common subset used in resume templates: \\section, \\subsection, \\textbf, \\textit, \\begin{itemize}, \\item, \\hrule, and basic text content. Full pdflatex compilation is not possible in the browser.",
   },
   {
-    id: "faq5",
-    question: "Which file formats are supported?",
+    id: "q5",
+    question: "Why can't Protect PDF add real password encryption?",
     answer:
-      "FileWizard supports a wide range of file formats. For images, we support JPG, PNG, WebP, GIF, and TIFF. For documents, we support PDF, DOCX, and more. Check each specific tool for format compatibility details.",
+      "Browser-based JavaScript cannot implement the full AES-256 PDF encryption standard without a backend. The Protect PDF tool adds strong visual protection overlays and document restriction metadata. For real password encryption, you'd need a server-side tool.",
+  },
+  {
+    id: "q6",
+    question: "Which browsers are supported?",
+    answer:
+      "All modern browsers: Chrome, Firefox, Safari, Edge. Some features (like WebP export) may not work in older Safari versions. For best results, use an up-to-date Chromium-based browser.",
   },
 ];
 
 const FAQ = () => {
-  const [openFaq, setOpenFaq] = useState("faq1");
-
-  const toggleFaq = (id: string) => {
-    setOpenFaq(openFaq === id ? "" : id);
-  };
+  const [openId, setOpenId] = useState<string>("q1");
 
   return (
-    <section id="faq" className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-800">
+    <section id="faq" className="py-14 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold font-heading text-gray-900 mb-4 dark:text-white">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
-            Find answers to common questions about our file conversion tools
-          </p>
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-5 h-0.5 bg-[#E63228]" />
+            <span className="text-[#E63228] text-xs font-semibold uppercase tracking-widest">FAQ</span>
+          </div>
+          <h2 className="text-3xl font-bold font-heading text-[#0A0A0A]">Frequently asked questions</h2>
         </div>
 
-        <div className="max-w-3xl mx-auto">
-          <div className="space-y-4">
-            {faqs.map((faq) => (
-              <div
-                key={faq.id}
-                className="border border-gray-200 rounded-lg overflow-hidden dark:border-gray-700"
+        <div className="max-w-3xl">
+          {faqs.map((faq) => (
+            <div
+              key={faq.id}
+              className={`border-b border-[#E0E0E0] ${openId === faq.id ? "border-l-2 border-l-[#E63228]" : ""}`}
+            >
+              <button
+                className="w-full flex items-center justify-between py-4 px-4 text-left hover:bg-[#FAFAFA] transition-colors focus:outline-none"
+                onClick={() => setOpenId(openId === faq.id ? "" : faq.id)}
               >
-                <button
-                  className="w-full px-6 py-4 text-left bg-white hover:bg-gray-50 focus:outline-none transition-colors duration-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-                  onClick={() => toggleFaq(faq.id)}
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {faq.question}
-                    </h3>
-                    {openFaq === faq.id ? (
-                      <ChevronUp className="text-gray-500 dark:text-gray-400" size={16} />
-                    ) : (
-                      <ChevronDown className="text-gray-500 dark:text-gray-400" size={16} />
-                    )}
-                  </div>
-                </button>
-                {openFaq === faq.id && (
-                  <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {faq.answer}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                <span className={`text-sm font-semibold pr-4 ${openId === faq.id ? "text-[#E63228]" : "text-[#0A0A0A]"}`}>
+                  {faq.question}
+                </span>
+                <span className="flex-shrink-0 text-[#0A0A0A]">
+                  {openId === faq.id ? <Minus size={14} /> : <Plus size={14} />}
+                </span>
+              </button>
+              {openId === faq.id && (
+                <div className="px-4 pb-4">
+                  <p className="text-sm text-[#555] leading-relaxed">{faq.answer}</p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>

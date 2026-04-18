@@ -11,6 +11,9 @@ import CompressPdf from "@/pages/CompressPdf";
 import ResumeMaker from "@/pages/ResumeMaker";
 import MergePdf from "@/pages/MergePdf";
 import SplitPdf from "@/pages/SplitPdf";
+import WatermarkPdf from "@/pages/WatermarkPdf";
+import LockPdf from "@/pages/LockPdf";
+import LatexResume from "@/pages/LatexResume";
 
 function Router() {
   return (
@@ -22,6 +25,9 @@ function Router() {
       <Route path="/resume-builder" component={ResumeMaker} />
       <Route path="/merge-pdfs" component={MergePdf} />
       <Route path="/split-pdf" component={SplitPdf} />
+      <Route path="/watermark-pdf" component={WatermarkPdf} />
+      <Route path="/lock-pdf" component={LockPdf} />
+      <Route path="/latex-resume" component={LatexResume} />
       <Route component={NotFound} />
     </Switch>
   );

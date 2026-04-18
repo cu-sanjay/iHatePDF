@@ -1,6 +1,6 @@
-# FileWizard - Free Online File Conversion Tools
+# iHatePDF - Free Online File Conversion Tools
 
-FileWizard is a modern, browser-based application for PDF and file conversions. It offers a variety of tools to convert, manipulate, and optimize files entirely on the client-side without requiring any server processing or user authentication.
+iHatePDF is a modern, browser-based application for PDF and file conversions. It offers a variety of tools to convert, manipulate, and optimize files entirely on the client-side without requiring any server processing or user authentication.
 
 [![FileWizard Banner](https://github.com/user-attachments/assets/cb97aab7-6c03-41da-81ee-2cc93bef2a2b)](https://i-hate-pdf.vercel.app/)
 

@@ -1,69 +1,66 @@
-import { Upload, Cog, Download, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
+
+const steps = [
+  {
+    num: "01",
+    title: "Upload",
+    desc: "Select files from your device or drag-and-drop. Files stay local — nothing is sent to any server.",
+  },
+  {
+    num: "02",
+    title: "Configure",
+    desc: "Choose your options: format, quality, page range, watermark text, or resume template.",
+  },
+  {
+    num: "03",
+    title: "Download",
+    desc: "Processing happens instantly in your browser. Download the result immediately.",
+  },
+];
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-12 sm:py-16 bg-white dark:bg-gray-900">
+    <section id="how-it-works" className="py-14 bg-[#F5F5F5]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold font-heading text-gray-900 mb-4 dark:text-white">
-            How It Works
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
-            FileWizard processes your files directly in your browser, ensuring privacy and fast results
-          </p>
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-5 h-0.5 bg-[#E63228]" />
+            <span className="text-[#E63228] text-xs font-semibold uppercase tracking-widest">Process</span>
+          </div>
+          <h2 className="text-3xl font-bold font-heading text-[#0A0A0A]">How it works</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-4xl mx-auto">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-primary mb-4 dark:bg-blue-900">
-              <Upload size={24} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#E0E0E0]">
+          {steps.map((step, i) => (
+            <div key={step.num} className="bg-white p-7 relative">
+              <div className="absolute top-5 right-5 text-7xl font-extrabold text-[#F0F0F0] leading-none font-heading select-none">
+                {step.num}
+              </div>
+              <div className="relative z-10">
+                <div className="w-8 h-0.5 bg-[#E63228] mb-4" />
+                <h3 className="text-lg font-bold text-[#0A0A0A] font-heading mb-2">{step.title}</h3>
+                <p className="text-[#666] text-sm leading-relaxed">{step.desc}</p>
+              </div>
+              {i < steps.length - 1 && (
+                <div className="hidden md:block absolute top-1/2 -right-3 z-20 transform -translate-y-1/2">
+                  <div className="w-6 h-0.5 bg-[#E63228]" />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-[#E63228]" style={{borderLeftWidth: 6}} />
+                </div>
+              )}
             </div>
-            <h3 className="text-xl font-semibold font-heading text-gray-900 mb-2 dark:text-white">
-              1. Upload
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Upload your files securely through drag-and-drop or file selector
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-secondary mb-4 dark:bg-green-900">
-              <Cog size={24} />
-            </div>
-            <h3 className="text-xl font-semibold font-heading text-gray-900 mb-2 dark:text-white">
-              2. Process
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Choose your options and let our tools process your files directly in your browser
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-accent mb-4 dark:bg-purple-900">
-              <Download size={24} />
-            </div>
-            <h3 className="text-xl font-semibold font-heading text-gray-900 mb-2 dark:text-white">
-              3. Download
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Download your converted or compressed files to your device immediately
-            </p>
-          </div>
+          ))}
         </div>
 
-        <div className="mt-16 max-w-4xl mx-auto bg-gray-50 rounded-xl p-6 border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-          <div className="flex items-start">
-            <div className="min-w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-primary mr-4 dark:bg-blue-900">
-              <Shield size={24} />
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold font-heading text-gray-900 mb-2 dark:text-white">
-                100% Secure and Private
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                All processing is done locally in your browser. Your files never leave your device and aren't uploaded to any server. We have no access to your files, ensuring complete privacy and security.
-              </p>
-            </div>
+        <div className="mt-px bg-[#0A0A0A] p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-shrink-0 w-10 h-10 border border-[#E63228] flex items-center justify-center">
+            <Shield size={18} className="text-[#E63228]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white mb-0.5">Private by design</h3>
+            <p className="text-[#888] text-sm">
+              All operations run entirely in your browser using JavaScript. No file is ever transmitted to any server.
+              There is no backend that processes your PDFs. Your documents are yours alone.
+            </p>
           </div>
         </div>
       </div>

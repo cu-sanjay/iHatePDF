@@ -73,9 +73,9 @@ interface TemplateOption {
 }
 
 const templateOptions: TemplateOption[] = [
-  { id: 'minimal', name: 'Minimal', previewClass: 'bg-white border-2 border-gray-200' },
-  { id: 'modern', name: 'Modern', previewClass: 'bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200' },
-  { id: 'professional', name: 'Professional', previewClass: 'bg-gray-50 border-2 border-gray-300' },
+  { id: 'minimal', name: 'Minimal', previewClass: 'bg-white border-2 border-[#E0E0E0]' },
+  { id: 'modern', name: 'Modern', previewClass: 'bg-[#F5F5F5] border-2 border-[#E0E0E0]' },
+  { id: 'professional', name: 'Professional', previewClass: 'bg-[#0A0A0A] border-2 border-[#0A0A0A]' },
 ];
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -303,20 +303,20 @@ const ResumeMaker = () => {
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-gray-900 dark:to-gray-800">
+    <section className="py-10 bg-[#F5F5F5] min-h-[60vh]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold font-heading text-gray-900 mb-4 dark:text-white">
-            Resume Builder
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
-            Create a professional resume with our easy-to-use builder
-          </p>
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-4 h-0.5 bg-[#E63228]" />
+            <span className="text-[#E63228] text-xs font-semibold uppercase tracking-widest">Create</span>
+          </div>
+          <h1 className="text-2xl font-bold text-[#0A0A0A] font-heading">Resume Builder</h1>
+          <p className="text-[#666] text-sm mt-1">Build a professional resume with a form-based editor</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Resume Form */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden dark:bg-gray-800 dark:border dark:border-gray-700">
+          <div className="bg-white border border-[#E0E0E0] overflow-hidden">
             <div className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-4 mb-6">
@@ -329,7 +329,7 @@ const ResumeMaker = () => {
                 {/* Personal Information Tab */}
                 <TabsContent value="personal-info">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-100">Personal Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Personal Information</h3>
                     
                     <div>
                       <Label htmlFor="fullName">Full Name</Label>
@@ -389,20 +389,20 @@ const ResumeMaker = () => {
                 <TabsContent value="education">
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Education</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">Education</h3>
                       <Button 
                         onClick={addEducation} 
                         size="sm" 
-                        className="flex items-center text-yellow-500 hover:text-yellow-600 bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400 dark:hover:bg-yellow-900/40"
+                        className="flex items-center bg-[#E63228] text-white hover:bg-[#c4231a]"
                       >
                         <Plus size={16} className="mr-1" /> Add Education
                       </Button>
                     </div>
                     
                     {resumeData.education.length === 0 ? (
-                      <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg dark:border-gray-700">
+                      <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg">
                         <GraduationCap size={32} className="mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-500 dark:text-gray-400">No education entries yet. Add your educational background.</p>
+                        <p className="text-gray-500">No education entries yet. Add your educational background.</p>
                       </div>
                     ) : (
                       <div className="space-y-6">
@@ -486,20 +486,20 @@ const ResumeMaker = () => {
                 <TabsContent value="experience">
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Work Experience</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">Work Experience</h3>
                       <Button 
                         onClick={addExperience} 
                         size="sm" 
-                        className="flex items-center text-yellow-500 hover:text-yellow-600 bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400 dark:hover:bg-yellow-900/40"
+                        className="flex items-center bg-[#E63228] text-white hover:bg-[#c4231a]"
                       >
                         <Plus size={16} className="mr-1" /> Add Experience
                       </Button>
                     </div>
                     
                     {resumeData.experience.length === 0 ? (
-                      <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg dark:border-gray-700">
+                      <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg">
                         <Briefcase size={32} className="mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-500 dark:text-gray-400">No work experience entries yet. Add your work history.</p>
+                        <p className="text-gray-500">No work experience entries yet. Add your work history.</p>
                       </div>
                     ) : (
                       <div className="space-y-6">
@@ -584,20 +584,20 @@ const ResumeMaker = () => {
                 <TabsContent value="skills">
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Skills</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">Skills</h3>
                       <Button 
                         onClick={addSkill} 
                         size="sm" 
-                        className="flex items-center text-yellow-500 hover:text-yellow-600 bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400 dark:hover:bg-yellow-900/40"
+                        className="flex items-center bg-[#E63228] text-white hover:bg-[#c4231a]"
                       >
                         <Plus size={16} className="mr-1" /> Add Skill
                       </Button>
                     </div>
                     
                     {resumeData.skills.length === 0 ? (
-                      <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg dark:border-gray-700">
+                      <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg">
                         <Award size={32} className="mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-500 dark:text-gray-400">No skills added yet. Add your technical and soft skills.</p>
+                        <p className="text-gray-500">No skills added yet. Add your technical and soft skills.</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -643,13 +643,13 @@ const ResumeMaker = () => {
                 </TabsContent>
               </Tabs>
               
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-100">Resume Template</h3>
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Resume Template</h3>
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   {templateOptions.map(template => (
                     <div key={template.id} className="text-center">
                       <div 
-                        className={`h-24 rounded-lg mb-2 ${template.previewClass} ${selectedTemplate === template.id ? 'ring-2 ring-yellow-500' : ''}`}
+                        className={`h-24 rounded-lg mb-2 ${template.previewClass} ${selectedTemplate === template.id ? 'ring-2 ring-[#E63228]' : ''}`}
                         onClick={() => setSelectedTemplate(template.id)}
                       ></div>
                       <div className="text-sm">{template.name}</div>
@@ -660,8 +660,8 @@ const ResumeMaker = () => {
                 {isGenerating && (
                   <div className="mb-6">
                     <div className="mb-2 flex justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Generating PDF...</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{progress}%</span>
+                      <span className="text-sm font-medium text-gray-700">Generating PDF...</span>
+                      <span className="text-sm text-gray-500">{progress}%</span>
                     </div>
                     <Progress value={progress} className="h-2.5" />
                   </div>
@@ -670,7 +670,7 @@ const ResumeMaker = () => {
                 <div className="flex gap-4">
                   <Button 
                     onClick={generateResume}
-                    className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white"
+                    className="flex-1 bg-[#E63228] hover:bg-[#c4231a] text-white"
                     disabled={isGenerating}
                   >
                     <Download className="mr-2 h-4 w-4" /> Generate Resume
@@ -689,15 +689,15 @@ const ResumeMaker = () => {
           </div>
           
           {/* Resume Preview */}
-          <div className="bg-white rounded-xl shadow-md overflow-auto dark:bg-gray-800 dark:border dark:border-gray-700 h-[800px]">
+          <div className="bg-white border border-[#E0E0E0] h-[800px]">
             <div className="p-6">
               <div className="mb-4 text-center">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Preview</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">This is how your resume will look when generated</p>
+                <h3 className="text-lg font-semibold text-gray-800">Preview</h3>
+                <p className="text-sm text-gray-500">This is how your resume will look when generated</p>
               </div>
               
               <div ref={resumeRef} className={`p-8 bg-white border border-gray-200 min-h-[700px] overflow-hidden ${
-                selectedTemplate === 'modern' ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200' : 
+                selectedTemplate === 'modern' ? 'bg-[#FAFAFA] border-[#E0E0E0]' : 
                 selectedTemplate === 'professional' ? 'bg-gray-50' : ''
               }`}>
                 {/* Resume Header */}

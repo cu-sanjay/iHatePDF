@@ -1,93 +1,61 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useTheme } from "./ui/theme-provider";
-import { Sun, Moon, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+
+const Logo = () => (
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6 3h13.5L28 11.5V29a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" fill="white"/>
+    <path d="M19.5 3L28 11.5h-8.5V3z" fill="#ccc"/>
+    <line x1="11" y1="15" x2="21" y2="25" stroke="#E63228" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="21" y1="15" x2="11" y2="25" stroke="#E63228" strokeWidth="2.5" strokeLinecap="round"/>
+  </svg>
+);
+
+const navItems = [
+  { label: "Tools", href: "/#tools" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "FAQ", href: "/#faq" },
+];
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
   const [location] = useLocation();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm dark:bg-gray-900 dark:border-b dark:border-gray-800">
+    <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b-2 border-[#E63228]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-white">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
+        <div className="flex justify-between items-center h-14">
+          <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setIsMenuOpen(false)}>
+            <div className="flex items-center justify-center w-8 h-8 bg-[#0A0A0A] border border-[#E63228]">
+              <Logo />
             </div>
-            <Link href="/" className="text-2xl font-bold font-heading text-gray-900 dark:text-white">
-              File<span className="text-primary">Wizard</span>
-            </Link>
-          </div>
+            <span className="text-xl font-bold tracking-tight font-heading text-white">
+              i<span className="text-[#E63228]">Hate</span>PDF
+            </span>
+          </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            <a
-              href="/#tools"
-              className={`font-medium ${
-                location === "/#tools"
-                  ? "text-primary"
-                  : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
-              }`}
-            >
-              Tools
-            </a>
-            <a
-              href="/#how-it-works"
-              className={`font-medium ${
-                location === "/#how-it-works"
-                  ? "text-primary"
-                  : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
-              }`}
-            >
-              How It Works
-            </a>
-            <a
-              href="/#faq"
-              className={`font-medium ${
-                location === "/#faq"
-                  ? "text-primary"
-                  : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
-              }`}
-            >
-              FAQ
-            </a>
+          <nav className="hidden md:flex items-center gap-8">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-[#aaa] hover:text-white transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#E63228] hover:after:w-full after:transition-all"
+              >
+                {item.label}
+              </a>
+            ))}
           </nav>
 
-          <div className="flex items-center">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary focus:outline-none"
-              aria-label="Toggle theme"
+          <div className="flex items-center gap-3">
+            <a
+              href="/#tools"
+              className="hidden md:inline-flex items-center px-4 py-1.5 bg-[#E63228] text-white text-sm font-semibold hover:bg-[#c4231a] transition-colors"
             >
-              {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
+              Get Started
+            </a>
             <button
-              className="md:hidden p-2 rounded-full text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary focus:outline-none"
-              onClick={toggleMenu}
+              className="md:hidden p-1.5 text-[#aaa] hover:text-white focus:outline-none"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -95,30 +63,25 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4">
-            <div className="flex flex-col space-y-3">
+          <div className="md:hidden border-t border-[#222] py-4">
+            <div className="flex flex-col gap-1">
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-[#aaa] hover:text-white hover:bg-[#1a1a1a] px-3 py-2.5 text-sm font-medium transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
               <a
                 href="/#tools"
-                className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary font-medium"
+                className="mt-2 mx-3 px-4 py-2 bg-[#E63228] text-white text-sm font-semibold text-center hover:bg-[#c4231a] transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Tools
-              </a>
-              <a
-                href="/#how-it-works"
-                className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                How It Works
-              </a>
-              <a
-                href="/#faq"
-                className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                FAQ
+                Get Started
               </a>
             </div>
           </div>

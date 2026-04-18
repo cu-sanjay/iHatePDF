@@ -1,5 +1,5 @@
 import React from "react";
-import { X, RotateCw, Download, Trash } from "lucide-react";
+import { X, RotateCw, Trash } from "lucide-react";
 
 interface FilePreviewProps {
   files: File[];
@@ -12,6 +12,24 @@ interface FilePreviewProps {
   onAddMore?: () => void;
   className?: string;
 }
+
+const PdfIcon = ({ className = "h-8 w-8" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={`${className} text-[#E63228]`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+);
+
+const ImageIcon = ({ className = "h-8 w-8" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={`${className} text-[#0A0A0A]`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
 
 const FilePreview: React.FC<FilePreviewProps> = ({
   files,
@@ -26,61 +44,38 @@ const FilePreview: React.FC<FilePreviewProps> = ({
 }) => {
   if (files.length === 0) return null;
 
-  const fileIcon = fileType === "pdf" ? (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <line x1="16" y1="13" x2="8" y2="13"></line>
-      <line x1="16" y1="17" x2="8" y2="17"></line>
-      <polyline points="10 9 9 9 8 9"></polyline>
-    </svg>
-  ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-      <circle cx="8.5" cy="8.5" r="1.5"></circle>
-      <polyline points="21 15 16 10 5 21"></polyline>
-    </svg>
-  );
-
-  // For single file preview (PDF)
   if (fileType === "pdf" && files.length === 1) {
     return (
-      <div className={`border border-gray-200 rounded-lg mb-8 overflow-hidden ${className} dark:border-gray-700`}>
-        <div className="bg-gray-100 border-b border-gray-200 px-4 py-3 flex justify-between items-center dark:bg-gray-800 dark:border-gray-700">
-          <div className="flex items-center">
-            {fileIcon}
-            <span className="ml-2 font-medium text-gray-700 dark:text-gray-200">{files[0].name}</span>
+      <div className={`border border-[#E0E0E0] mb-6 overflow-hidden ${className}`}>
+        <div className="bg-[#F5F5F5] border-b border-[#E0E0E0] px-4 py-2.5 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <PdfIcon className="h-5 w-5" />
+            <span className="text-sm font-medium text-[#0A0A0A] truncate max-w-[280px]">{files[0].name}</span>
           </div>
           {showControls && (
-            <button 
-              className="text-gray-500 hover:text-red-500 focus:outline-none dark:text-gray-400 dark:hover:text-red-400" 
+            <button
+              className="text-[#888] hover:text-[#E63228] transition-colors focus:outline-none"
               onClick={() => onRemoveAll?.()}
               aria-label="Remove file"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           )}
         </div>
-        <div className="p-4 flex flex-col items-center justify-center">
+        <div className="p-5 flex flex-col items-center justify-center bg-white">
           {previewUrls.length > 0 ? (
-            <div className="w-full max-w-sm bg-gray-50 border border-gray-200 rounded-lg mb-4 overflow-hidden dark:bg-gray-700 dark:border-gray-600">
+            <div className="w-full max-w-xs border border-[#E0E0E0] mb-3 overflow-hidden">
               <img src={previewUrls[0]} alt="PDF preview" className="w-full h-auto" />
             </div>
           ) : (
-            <div className="w-full max-w-sm flex items-center justify-center p-8 bg-gray-50 border border-gray-200 rounded-lg mb-4">
+            <div className="w-full max-w-xs flex items-center justify-center p-8 bg-[#FAFAFA] border border-[#E0E0E0] mb-3">
               <div className="text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{files[0].name}</p>
+                <PdfIcon className="h-14 w-14 mx-auto" />
+                <p className="mt-2 text-xs text-[#888] truncate max-w-[200px]">{files[0].name}</p>
               </div>
             </div>
           )}
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-xs text-[#888]">
             {(files[0].size / 1024 / 1024).toFixed(2)} MB
           </div>
         </div>
@@ -88,68 +83,67 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     );
   }
 
-  // For multiple files preview (Images)
   return (
-    <div className={`border border-gray-200 rounded-lg mb-8 ${className} dark:border-gray-700`}>
-      <div className="bg-gray-100 border-b border-gray-200 px-4 py-3 flex justify-between items-center dark:bg-gray-800 dark:border-gray-700">
-        <h4 className="font-medium text-gray-700 dark:text-gray-200">Selected Files ({files.length})</h4>
+    <div className={`border border-[#E0E0E0] mb-6 ${className}`}>
+      <div className="bg-[#F5F5F5] border-b border-[#E0E0E0] px-4 py-2.5 flex justify-between items-center">
+        <h4 className="text-sm font-medium text-[#0A0A0A]">Selected Files ({files.length})</h4>
         {showControls && (
-          <div>
+          <div className="flex items-center gap-3">
             {onAddMore && (
-              <button className="text-sm text-gray-600 hover:text-secondary mr-3 focus:outline-none dark:text-gray-300 dark:hover:text-secondary" onClick={onAddMore}>
-                <span className="flex items-center"><span className="mr-1">+</span> Add More</span>
+              <button className="text-xs text-[#E63228] hover:text-[#c4231a] font-medium focus:outline-none transition-colors" onClick={onAddMore}>
+                + Add More
               </button>
             )}
-            <button className="text-gray-500 hover:text-red-500 focus:outline-none dark:text-gray-400 dark:hover:text-red-400" onClick={() => onRemoveAll?.()} aria-label="Clear all files">
-              <Trash size={16} />
+            <button className="text-[#888] hover:text-[#E63228] focus:outline-none transition-colors" onClick={() => onRemoveAll?.()} aria-label="Clear all files">
+              <Trash size={14} />
             </button>
           </div>
         )}
       </div>
-      
-      <div className="p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+      <div className="p-4 bg-white">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {files.map((file, index) => (
-            <div key={`${file.name}-${index}`} className="border border-gray-200 rounded-lg overflow-hidden group relative dark:border-gray-700">
+            <div key={`${file.name}-${index}`} className="border border-[#E0E0E0] overflow-hidden group relative">
               {showControls && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                   {onRemove && (
                     <button
-                      className="w-8 h-8 rounded-full bg-white text-red-500 hover:bg-red-100 transition-colors duration-200 flex items-center justify-center mr-1 dark:bg-gray-700 dark:hover:bg-gray-600"
+                      className="w-7 h-7 bg-white text-[#E63228] hover:bg-[#E63228] hover:text-white transition-colors flex items-center justify-center"
                       onClick={() => onRemove(index)}
-                      title="Remove image"
+                      title="Remove"
                     >
-                      <Trash size={14} />
+                      <Trash size={12} />
                     </button>
                   )}
                   {onRotate && (
                     <button
-                      className="w-8 h-8 rounded-full bg-white text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center ml-1 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                      className="w-7 h-7 bg-white text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white transition-colors flex items-center justify-center"
                       onClick={() => onRotate(index)}
-                      title="Rotate image"
+                      title="Rotate"
                     >
-                      <RotateCw size={14} />
+                      <RotateCw size={12} />
                     </button>
                   )}
                 </div>
               )}
-              
+
               {previewUrls[index] ? (
                 <img
                   src={previewUrls[index]}
-                  alt={`Selected file ${index + 1}`}
-                  className="w-full h-40 object-cover"
+                  alt={`File ${index + 1}`}
+                  className="w-full h-36 object-cover"
                 />
               ) : (
-                <div className="w-full h-40 flex items-center justify-center bg-gray-50 dark:bg-gray-700">
-                  {fileIcon}
+                <div className="w-full h-36 flex items-center justify-center bg-[#FAFAFA]">
+                  {fileType === "image" ? <ImageIcon /> : <PdfIcon />}
                 </div>
               )}
-              
-              <div className="p-2 bg-white dark:bg-gray-800">
-                <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+
+              <div className="p-2 bg-white border-t border-[#E0E0E0]">
+                <div className="flex justify-between items-center text-xs text-[#888]">
                   <span className="truncate max-w-[80%]" title={file.name}>{file.name}</span>
-                  <span className="bg-gray-100 px-1.5 py-0.5 rounded dark:bg-gray-700">{index + 1}</span>
+                  <span className="bg-[#F0F0F0] px-1.5 py-0.5 text-[#555] font-medium">{index + 1}</span>
                 </div>
               </div>
             </div>

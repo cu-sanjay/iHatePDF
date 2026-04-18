@@ -1,6 +1,6 @@
 {
-  "name": "rest-express",
-  "version": "1.0.0",
+  "name": "ihatepdf",
+  "version": "2.0.0",
   "type": "module",
   "license": "MIT",
   "scripts": {

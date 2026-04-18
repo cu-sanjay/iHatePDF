@@ -1,5 +1,5 @@
 import * as pdfjs from "pdfjs-dist";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, degrees, grayscale } from "pdf-lib";
 import { createFile, downloadFile } from "./fileUtils";
 
 // Initialize PDF.js worker
@@ -162,6 +162,113 @@ export const mergePdfFiles = async (pdfFiles: File[]): Promise<File> => {
   
   // Create a new file
   return new File([mergedPdfBytes], "merged.pdf", { type: "application/pdf" });
+};
+
+interface WatermarkOptions {
+  text: string;
+  opacity?: number;
+  fontSize?: number;
+}
+
+/**
+ * Adds a diagonal text watermark to every page of a PDF
+ */
+export const addWatermark = async (
+  pdfFile: File,
+  options: WatermarkOptions
+): Promise<File> => {
+  const { text, opacity = 0.15, fontSize = 48 } = options;
+
+  const arrayBuffer = await pdfFile.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const pages = pdfDoc.getPages();
+
+  for (const page of pages) {
+    const { width, height } = page.getSize();
+    const textWidth = font.widthOfTextAtSize(text, fontSize);
+    const x = (width - textWidth * Math.cos(Math.PI / 4)) / 2;
+    const y = height / 2 - (fontSize * Math.sin(Math.PI / 4)) / 2;
+
+    page.drawText(text, {
+      x,
+      y,
+      size: fontSize,
+      font,
+      color: rgb(0.9, 0.1, 0.1),
+      opacity,
+      rotate: degrees(45),
+    });
+  }
+
+  const pdfBytes = await pdfDoc.save();
+  const outName = pdfFile.name.replace(/\.pdf$/i, "_watermarked.pdf");
+  return new File([pdfBytes], outName, { type: "application/pdf" });
+};
+
+interface ProtectOptions {
+  watermarkText?: string;
+  removeMetadata?: boolean;
+}
+
+/**
+ * Adds visual protection (overlay + metadata strip) to a PDF
+ */
+export const protectPdf = async (
+  pdfFile: File,
+  options: ProtectOptions = {}
+): Promise<File> => {
+  const { watermarkText, removeMetadata = true } = options;
+
+  const arrayBuffer = await pdfFile.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+  if (removeMetadata) {
+    pdfDoc.setTitle("");
+    pdfDoc.setAuthor("");
+    pdfDoc.setSubject("");
+    pdfDoc.setKeywords([]);
+    pdfDoc.setProducer("iHatePDF");
+    pdfDoc.setCreator("iHatePDF");
+  }
+
+  if (watermarkText) {
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const pages = pdfDoc.getPages();
+    const fontSize = 52;
+
+    for (const page of pages) {
+      const { width, height } = page.getSize();
+      const textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+      const x = (width - textWidth * Math.cos(Math.PI / 4)) / 2;
+      const y = height / 2 - (fontSize * Math.sin(Math.PI / 4)) / 2;
+
+      page.drawText(watermarkText, {
+        x,
+        y,
+        size: fontSize,
+        font,
+        color: rgb(0.85, 0.1, 0.1),
+        opacity: 0.12,
+        rotate: degrees(45),
+      });
+
+      // Border overlay
+      page.drawRectangle({
+        x: 8,
+        y: 8,
+        width: width - 16,
+        height: height - 16,
+        borderColor: rgb(0.85, 0.1, 0.1),
+        borderWidth: 2,
+        opacity: 0.3,
+      });
+    }
+  }
+
+  const pdfBytes = await pdfDoc.save();
+  const outName = pdfFile.name.replace(/\.pdf$/i, "_protected.pdf");
+  return new File([pdfBytes], outName, { type: "application/pdf" });
 };
 
 interface SplitPdfOptions {

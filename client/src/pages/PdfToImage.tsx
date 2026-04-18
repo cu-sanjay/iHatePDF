@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import { Link } from "wouter";
+import { useState, useCallback } from "react";
 import FileUpload from "@/components/FileUpload";
 import FilePreview from "@/components/FilePreview";
-import { FileText, Download, ArrowRight } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -19,196 +18,105 @@ const PdfToImage = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string>("");
   const [showOptions, setShowOptions] = useState(false);
-  const [convertingStatus, setConvertingStatus] = useState<'idle' | 'converting' | 'complete'>('idle');
+  const [convertingStatus, setConvertingStatus] = useState<"idle" | "converting" | "complete">("idle");
   const [progress, setProgress] = useState(0);
   const [convertedImages, setConvertedImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
-  const [pageRange, setPageRange] = useState<'all' | 'custom'>('all');
+  const [pageRange, setPageRange] = useState<"all" | "custom">("all");
   const [customRange, setCustomRange] = useState<string>("");
-  const [imageFormat, setImageFormat] = useState<'jpg' | 'png' | 'webp'>('jpg');
-  const [imageQuality, setImageQuality] = useState<'high' | 'medium' | 'low'>('medium');
+  const [imageFormat, setImageFormat] = useState<"jpg" | "png" | "webp">("jpg");
+  const [imageQuality, setImageQuality] = useState<"high" | "medium" | "low">("medium");
 
-  // Handle PDF file selection
   const handlePdfSelected = useCallback(async (files: File[]) => {
-    if (files.length > 0 && files[0].type === 'application/pdf') {
+    if (files.length > 0 && files[0].type === "application/pdf") {
       setPdfFile(files[0]);
       try {
         const previewUrl = await generateFilePreview(files[0]);
         setPdfPreviewUrl(previewUrl);
         setShowOptions(true);
-        setConvertingStatus('idle');
+        setConvertingStatus("idle");
         setProgress(0);
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Preview generation failed",
-          description: "Could not generate a preview for this PDF.",
-        });
+      } catch {
+        toast({ variant: "destructive", title: "Preview failed", description: "Could not preview this PDF." });
       }
     }
   }, [toast]);
 
-  // Reset the converter state
   const handleReset = useCallback(() => {
     setPdfFile(null);
     setPdfPreviewUrl("");
     setShowOptions(false);
-    setConvertingStatus('idle');
+    setConvertingStatus("idle");
     setProgress(0);
     setConvertedImages([]);
     setImagePreviewUrls([]);
-    setPageRange('all');
+    setPageRange("all");
     setCustomRange("");
   }, []);
 
-  // Convert PDF to images
   const handleConvert = useCallback(async () => {
     if (!pdfFile) return;
-
-    setConvertingStatus('converting');
+    setConvertingStatus("converting");
     setProgress(0);
-
     try {
-      // Parse page range if custom
       let pagesToConvert: number[] | "all" = "all";
-      if (pageRange === 'custom' && customRange.trim()) {
+      if (pageRange === "custom" && customRange.trim()) {
         pagesToConvert = [];
-        const ranges = customRange.split(',');
-        
-        for (const range of ranges) {
-          const trimmedRange = range.trim();
-          if (trimmedRange.includes('-')) {
-            // Handle range like "1-3"
-            const [start, end] = trimmedRange.split('-').map(num => parseInt(num.trim(), 10));
-            if (!isNaN(start) && !isNaN(end) && start <= end) {
-              for (let i = start; i <= end; i++) {
-                if (!pagesToConvert.includes(i)) {
-                  pagesToConvert.push(i);
-                }
-              }
-            }
+        for (const range of customRange.split(",")) {
+          const t = range.trim();
+          if (t.includes("-")) {
+            const [s, e] = t.split("-").map(n => parseInt(n.trim(), 10));
+            if (!isNaN(s) && !isNaN(e) && s <= e) for (let i = s; i <= e; i++) (pagesToConvert as number[]).push(i);
           } else {
-            // Handle single page
-            const page = parseInt(trimmedRange, 10);
-            if (!isNaN(page) && !pagesToConvert.includes(page)) {
-              pagesToConvert.push(page);
-            }
+            const p = parseInt(t, 10);
+            if (!isNaN(p)) (pagesToConvert as number[]).push(p);
           }
         }
-        
-        if (pagesToConvert.length === 0) {
-          pagesToConvert = "all";
-        }
+        if ((pagesToConvert as number[]).length === 0) pagesToConvert = "all";
       }
-
-      // Quality settings based on selected option
-      const qualitySettings = {
-        high: 0.9,
-        medium: 0.7,
-        low: 0.5
-      };
-
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setProgress(prevProgress => {
-          const newProgress = prevProgress + 5;
-          return newProgress >= 90 ? 90 : newProgress;
-        });
-      }, 200);
-
-      // Convert PDF to images
-      const images = await convertPdfToImages(pdfFile, {
-        format: imageFormat,
-        quality: qualitySettings[imageQuality],
-        pages: pagesToConvert,
-        scale: 2
-      });
-
-      clearInterval(progressInterval);
+      const qualityMap = { high: 0.9, medium: 0.7, low: 0.5 };
+      const interval = setInterval(() => setProgress(p => Math.min(p + 5, 90)), 200);
+      const images = await convertPdfToImages(pdfFile, { format: imageFormat, quality: qualityMap[imageQuality], pages: pagesToConvert, scale: 2 });
+      clearInterval(interval);
       setProgress(100);
       setConvertedImages(images);
-
-      // Generate previews for the converted images
-      const previewUrls = await Promise.all(images.map(img => generateFilePreview(img)));
-      setImagePreviewUrls(previewUrls);
-      setConvertingStatus('complete');
-
-      toast({
-        title: "Conversion complete",
-        description: `Successfully converted ${images.length} pages to images`,
-      });
-    } catch (error) {
-      console.error("PDF conversion error:", error);
-      setConvertingStatus('idle');
-      toast({
-        variant: "destructive",
-        title: "Conversion failed",
-        description: "An error occurred during conversion. Please try again.",
-      });
+      const urls = await Promise.all(images.map(img => generateFilePreview(img)));
+      setImagePreviewUrls(urls);
+      setConvertingStatus("complete");
+      toast({ title: "Done", description: `${images.length} pages converted.` });
+    } catch {
+      setConvertingStatus("idle");
+      toast({ variant: "destructive", title: "Conversion failed", description: "An error occurred. Please try again." });
     }
   }, [pdfFile, pageRange, customRange, imageFormat, imageQuality, toast]);
 
-  // Download a single converted image
-  const handleDownloadImage = (index: number) => {
-    if (convertedImages[index]) {
-      const file = convertedImages[index];
-      downloadFile(file, file.name, file.type);
-    }
-  };
-
-  // Download all converted images as a ZIP file
   const handleDownloadAll = async () => {
     try {
-      // Use JSZip to create a zip file of all images
-      const JSZip = (await import('jszip')).default;
+      const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
-      
-      // Add all images to the zip
-      for (const imageFile of convertedImages) {
-        const arrayBuffer = await imageFile.arrayBuffer();
-        zip.file(imageFile.name, arrayBuffer);
-      }
-      
-      // Generate the zip file
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      
-      // Download the zip file
-      const zipFileName = pdfFile ? `${pdfFile.name.replace('.pdf', '')}_images.zip` : 'converted_images.zip';
-      downloadFile(zipBlob, zipFileName, 'application/zip');
-      
-      toast({
-        title: "Download started",
-        description: "Your images have been packaged and download has started",
-      });
-    } catch (error) {
-      console.error("Download error:", error);
-      toast({
-        variant: "destructive",
-        title: "Download failed",
-        description: "An error occurred while preparing the download",
-      });
+      for (const f of convertedImages) zip.file(f.name, await f.arrayBuffer());
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      downloadFile(zipBlob, `${pdfFile?.name?.replace(".pdf", "")}_images.zip`, "application/zip");
+      toast({ title: "Download started" });
+    } catch {
+      toast({ variant: "destructive", title: "Download failed" });
     }
-  };
-
-  // Handle conversion of another file
-  const handleConvertAnother = () => {
-    handleReset();
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+    <section className="py-10 bg-[#F5F5F5] min-h-[60vh]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold font-heading text-gray-900 mb-4 dark:text-white">
-            PDF to Image Converter
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
-            Convert your PDF files to high-quality JPG, PNG, or other image formats
-          </p>
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-4 h-0.5 bg-[#E63228]" />
+            <span className="text-[#E63228] text-xs font-semibold uppercase tracking-widest">Convert</span>
+          </div>
+          <h1 className="text-2xl font-bold text-[#0A0A0A] font-heading">PDF to Image</h1>
+          <p className="text-[#666] text-sm mt-1">Convert PDF pages to high-quality JPG, PNG, or WebP images</p>
         </div>
 
-        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden dark:bg-gray-800 dark:border dark:border-gray-700">
-          <div className="p-8">
+        <div className="max-w-2xl bg-white border border-[#E0E0E0]">
+          <div className="p-6">
             {!pdfFile ? (
               <FileUpload
                 accept=".pdf,application/pdf"
@@ -216,36 +124,22 @@ const PdfToImage = () => {
                 multiple={false}
                 onFilesSelected={handlePdfSelected}
                 title="Upload PDF File"
-                description="Drag & drop your PDF here or click to browse"
+                description="Drag & drop or click to browse"
                 buttonText="Select PDF"
-                colorScheme="primary"
-                icon={<FileText size={40} />}
-                className="mb-8"
+                icon={<FileText size={36} />}
               />
             ) : (
               <>
-                <FilePreview
-                  files={[pdfFile]}
-                  fileType="pdf"
-                  previewUrls={pdfPreviewUrl ? [pdfPreviewUrl] : []}
-                  onRemoveAll={handleReset}
-                  className="mb-8"
-                />
+                <FilePreview files={[pdfFile]} fileType="pdf" previewUrls={pdfPreviewUrl ? [pdfPreviewUrl] : []} onRemoveAll={handleReset} className="mb-5" />
 
-                {showOptions && convertingStatus === 'idle' && (
-                  <div className="border border-gray-200 rounded-lg p-6 mb-8 bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-                    <h4 className="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-100">Conversion Options</h4>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {showOptions && convertingStatus === "idle" && (
+                  <div className="border border-[#E0E0E0] p-5 mb-5 bg-[#FAFAFA]">
+                    <h4 className="text-sm font-semibold text-[#0A0A0A] mb-4 uppercase tracking-wide">Conversion Options</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <Label htmlFor="image-format">Image Format</Label>
-                        <Select
-                          value={imageFormat}
-                          onValueChange={(value: "jpg" | "png" | "webp") => setImageFormat(value)}
-                        >
-                          <SelectTrigger id="image-format" className="w-full">
-                            <SelectValue placeholder="Select format" />
-                          </SelectTrigger>
+                        <Label htmlFor="image-format" className="text-xs font-semibold text-[#555] uppercase tracking-wide">Format</Label>
+                        <Select value={imageFormat} onValueChange={(v: "jpg" | "png" | "webp") => setImageFormat(v)}>
+                          <SelectTrigger id="image-format" className="mt-1 border-[#D0D0D0]"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="jpg">JPG</SelectItem>
                             <SelectItem value="png">PNG</SelectItem>
@@ -253,16 +147,10 @@ const PdfToImage = () => {
                           </SelectContent>
                         </Select>
                       </div>
-
                       <div>
-                        <Label htmlFor="image-quality">Image Quality</Label>
-                        <Select
-                          value={imageQuality}
-                          onValueChange={(value: "high" | "medium" | "low") => setImageQuality(value)}
-                        >
-                          <SelectTrigger id="image-quality" className="w-full">
-                            <SelectValue placeholder="Select quality" />
-                          </SelectTrigger>
+                        <Label htmlFor="image-quality" className="text-xs font-semibold text-[#555] uppercase tracking-wide">Quality</Label>
+                        <Select value={imageQuality} onValueChange={(v: "high" | "medium" | "low") => setImageQuality(v)}>
+                          <SelectTrigger id="image-quality" className="mt-1 border-[#D0D0D0]"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="high">High</SelectItem>
                             <SelectItem value="medium">Medium</SelectItem>
@@ -271,128 +159,80 @@ const PdfToImage = () => {
                         </Select>
                       </div>
                     </div>
-
                     <div>
-                      <Label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-200">Page Range</Label>
-                      <RadioGroup value={pageRange} onValueChange={(value: "all" | "custom") => setPageRange(value)} className="flex items-center space-x-2 mb-2">
-                        <div className="flex items-center">
+                      <Label className="text-xs font-semibold text-[#555] uppercase tracking-wide block mb-2">Page Range</Label>
+                      <RadioGroup value={pageRange} onValueChange={(v: "all" | "custom") => setPageRange(v)} className="flex gap-4">
+                        <div className="flex items-center gap-2">
                           <RadioGroupItem value="all" id="all-pages" />
-                          <Label htmlFor="all-pages" className="ml-2">All Pages</Label>
+                          <Label htmlFor="all-pages" className="text-sm cursor-pointer">All Pages</Label>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
                           <RadioGroupItem value="custom" id="custom-range" />
-                          <Label htmlFor="custom-range" className="ml-2">Custom Range</Label>
+                          <Label htmlFor="custom-range" className="text-sm cursor-pointer">Custom Range</Label>
                         </div>
                       </RadioGroup>
-                      
-                      {pageRange === 'custom' && (
+                      {pageRange === "custom" && (
                         <div className="mt-2">
-                          <Input
-                            type="text"
-                            placeholder="e.g., 1-3, 5, 7-9"
-                            value={customRange}
-                            onChange={(e) => setCustomRange(e.target.value)}
-                          />
-                          <p className="text-xs text-gray-500 mt-1 dark:text-gray-400">Separate with commas or hyphens (e.g., 1-3, 5, 7-9)</p>
+                          <Input placeholder="e.g., 1-3, 5, 7-9" value={customRange} onChange={e => setCustomRange(e.target.value)} className="border-[#D0D0D0]" />
+                          <p className="text-xs text-[#aaa] mt-1">Comma-separated or range (e.g. 1-3, 5)</p>
                         </div>
                       )}
                     </div>
                   </div>
                 )}
 
-                {convertingStatus === 'converting' && (
-                  <div id="conversion-progress" className="mt-8 mb-8">
-                    <div className="mb-2 flex justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Converting...</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{progress}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2.5" />
+                {convertingStatus === "converting" && (
+                  <div className="mb-5">
+                    <div className="flex justify-between text-xs text-[#888] mb-1"><span>Converting...</span><span>{progress}%</span></div>
+                    <Progress value={progress} className="h-1.5" />
                   </div>
                 )}
 
-                {convertingStatus === 'complete' && convertedImages.length > 0 && (
-                  <div id="conversion-result" className="mt-8">
-                    <Alert className="bg-green-50 border-green-200 mb-6 dark:bg-green-900/30 dark:border-green-800">
-                      <AlertDescription className="flex items-start text-green-800 dark:text-green-400">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 mr-2 flex-shrink-0"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                {convertingStatus === "complete" && convertedImages.length > 0 && (
+                  <div>
+                    <Alert className="bg-[#F5F5F5] border border-[#0A0A0A] mb-5">
+                      <AlertDescription className="flex items-center gap-2 text-[#0A0A0A] text-sm">
+                        <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                         </svg>
-                        <div>
-                          <p className="font-medium">Conversion Complete!</p>
-                          <p className="text-sm">Your PDF has been successfully converted to images.</p>
-                        </div>
+                        <span><strong>Done.</strong> {convertedImages.length} pages converted.</span>
                       </AlertDescription>
                     </Alert>
-
-                    <div className="border border-gray-200 rounded-lg mb-6 dark:border-gray-700">
-                      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                        <h4 className="font-medium text-gray-800 dark:text-gray-200">Generated Images</h4>
+                    <div className="border border-[#E0E0E0] mb-5">
+                      <div className="bg-[#F5F5F5] px-4 py-2.5 border-b border-[#E0E0E0]">
+                        <h4 className="text-sm font-medium text-[#0A0A0A]">Generated Images</h4>
                       </div>
-                      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {convertedImages.map((image, index) => (
-                          <div key={index} className="border border-gray-200 rounded-lg overflow-hidden dark:border-gray-700">
-                            <img
-                              src={imagePreviewUrls[index]}
-                              alt={`Converted image ${index + 1}`}
-                              className="w-full h-auto"
-                            />
-                            <div className="bg-white p-2 flex justify-between items-center dark:bg-gray-800">
-                              <span className="text-xs text-gray-600 truncate max-w-[120px] dark:text-gray-300" title={image.name}>
-                                {image.name}
-                              </span>
-                              <button
-                                className="text-xs text-primary hover:text-blue-700 font-medium dark:hover:text-blue-400"
-                                onClick={() => handleDownloadImage(index)}
-                              >
-                                <Download size={14} className="inline mr-1" /> Download
+                      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {convertedImages.map((img, i) => (
+                          <div key={i} className="border border-[#E0E0E0] overflow-hidden">
+                            <img src={imagePreviewUrls[i]} alt={`Page ${i + 1}`} className="w-full h-auto" />
+                            <div className="bg-white p-2 flex justify-between items-center border-t border-[#E0E0E0]">
+                              <span className="text-xs text-[#888] truncate max-w-[80px]">{img.name}</span>
+                              <button onClick={() => downloadFile(img, img.name, img.type)} className="text-xs text-[#E63228] hover:text-[#c4231a] font-medium flex items-center gap-1">
+                                <Download size={12} /> Save
                               </button>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row justify-center gap-4">
-                      <Button
-                        onClick={handleDownloadAll}
-                        className="bg-primary text-white hover:bg-blue-600"
-                      >
-                        <Download className="mr-2 h-4 w-4" /> Download All
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button onClick={handleDownloadAll} className="bg-[#E63228] text-white hover:bg-[#c4231a] rounded-none font-semibold">
+                        <Download size={15} className="mr-2" /> Download All (.zip)
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={handleConvertAnother}
-                      >
-                        Convert Another File
+                      <Button variant="outline" onClick={handleReset} className="border-[#D0D0D0] text-[#0A0A0A] hover:bg-[#F5F5F5] rounded-none">
+                        Convert Another
                       </Button>
                     </div>
                   </div>
                 )}
 
-                {convertingStatus === 'idle' && (
-                  <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <Button
-                      onClick={handleConvert}
-                      disabled={!pdfFile}
-                      className="bg-primary text-white hover:bg-blue-600"
-                    >
+                {convertingStatus === "idle" && (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button onClick={handleConvert} disabled={!pdfFile} className="bg-[#E63228] text-white hover:bg-[#c4231a] rounded-none font-semibold">
                       Convert to Images
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={handleReset}
-                      disabled={!pdfFile}
-                    >
+                    <Button variant="outline" onClick={handleReset} className="border-[#D0D0D0] text-[#0A0A0A] hover:bg-[#F5F5F5] rounded-none">
                       Reset
                     </Button>
                   </div>

@@ -1,181 +1,91 @@
 import { Link } from "wouter";
-import { Github, Twitter, Facebook, Instagram } from "lucide-react";
+import { Github } from "lucide-react";
+
+const tools = [
+  { label: "PDF to Image", href: "/pdf-to-image" },
+  { label: "Image to PDF", href: "/image-to-pdf" },
+  { label: "Compress PDF", href: "/compress-pdf" },
+  { label: "Merge PDFs", href: "/merge-pdfs" },
+  { label: "Split PDF", href: "/split-pdf" },
+  { label: "Watermark PDF", href: "/watermark-pdf" },
+  { label: "Protect PDF", href: "/lock-pdf" },
+  { label: "LaTeX Resume", href: "/latex-resume" },
+  { label: "Resume Builder", href: "/resume-builder" },
+];
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-white">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                  <line x1="16" y1="13" x2="8" y2="13" />
-                  <line x1="16" y1="17" x2="8" y2="17" />
-                  <polyline points="10 9 9 9 8 9" />
-                </svg>
-              </div>
-              <span className="text-2xl font-bold font-heading">
-                File<span className="text-primary">Wizard</span>
+    <footer className="bg-white text-[#0A0A0A] border-t-2 border-[#E63228]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 3h13.5L28 11.5V29a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" fill="#0A0A0A"/>
+                <path d="M19.5 3L28 11.5h-8.5V3z" fill="#F4E7E5"/>
+                <line x1="11" y1="15" x2="21" y2="25" stroke="#E63228" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="21" y1="15" x2="11" y2="25" stroke="#E63228" strokeWidth="2.5" strokeLinecap="round"/>
+              </svg>
+              <span className="text-lg font-bold font-heading">
+                i<span className="text-[#E63228]">Hate</span>PDF
               </span>
             </div>
-            <p className="text-gray-400 mb-4">
-              Free online tools for all your file conversion needs. Process PDFs,
-              images, and documents directly in your browser without sacrificing
-              privacy.
+            <p className="text-[#333] text-sm leading-relaxed mb-4">
+              All PDF processing happens in your browser. Your files never leave your device. No accounts, no tracking, no fees.
             </p>
-            <div className="flex space-x-4">
-              <a
-                href="#"
-                className="text-gray-400 hover:text-white transition-colors duration-200"
-                aria-label="Twitter"
-              >
-                <Twitter size={20} />
-              </a>
-              <a
-                href="#"
-                className="text-gray-400 hover:text-white transition-colors duration-200"
-                aria-label="Facebook"
-              >
-                <Facebook size={20} />
-              </a>
-              <a
-                href="#"
-                className="text-gray-400 hover:text-white transition-colors duration-200"
-                aria-label="Instagram"
-              >
-                <Instagram size={20} />
-              </a>
-              <a
-                href="https://github.com/cu-sanjay"
-                className="text-gray-400 hover:text-white transition-colors duration-200"
-                aria-label="GitHub"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github size={20} />
-              </a>
-            </div>
+            <a
+              href="https://github.com/cu-sanjay"
+              className="inline-flex items-center gap-1.5 text-[#333] hover:text-[#E63228] text-sm transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github size={15} />
+              <span>cu-sanjay</span>
+            </a>
           </div>
 
           <div>
-            <h4 className="font-medium text-lg mb-4">Tools</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/pdf-to-image"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  PDF to Image
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/image-to-pdf"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Image to PDF
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/compress-pdf"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Compress PDF
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resume-builder"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Resume Builder
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/merge-pdfs"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Merge PDFs
-                </Link>
-              </li>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-[#E63228] mb-3">PDF Tools</h4>
+            <ul className="space-y-1.5">
+              {tools.slice(0, 5).map((t) => (
+                <li key={t.href}>
+                  <Link href={t.href} className="text-[#333] hover:text-[#E63228] text-sm transition-colors">
+                    {t.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="font-medium text-lg mb-4">About</h4>
-            <ul className="space-y-2">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-[#E63228] mb-3">More Tools</h4>
+            <ul className="space-y-1.5">
+              {tools.slice(5).map((t) => (
+                <li key={t.href}>
+                  <Link href={t.href} className="text-[#777] hover:text-white text-sm transition-colors">
+                    {t.label}
+                  </Link>
+                </li>
+              ))}
               <li>
-                <a
-                  href="/#how-it-works"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  How It Works
-                </a>
+                <a href="/#how-it-works" className="text-[#333] hover:text-[#E63228] text-sm transition-colors">How It Works</a>
               </li>
               <li>
-                <a
-                  href="/#faq"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  FAQ
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Terms of Service
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
-                >
-                  Contact
-                </a>
+                <a href="/#faq" className="text-[#333] hover:text-[#E63228] text-sm transition-colors">FAQ</a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-gray-800 text-center">
-          <p className="text-gray-400">
-            Designed and Developed by{" "}
-            <a
-              href="https://github.com/cu-sanjay"
-              className="text-primary hover:text-blue-400 transition-colors duration-200"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+        <div className="pt-6 border-t border-[#E7D7D3] flex flex-col sm:flex-row justify-between items-center gap-2">
+          <p className="text-[#333] text-xs">
+            &copy; {new Date().getFullYear()} iHatePDF. All rights reserved.
+          </p>
+          <p className="text-[#333] text-xs">
+            Built by{" "}
+            <a href="https://github.com/cu-sanjay" className="text-[#333] hover:text-[#E63228] transition-colors" target="_blank" rel="noopener noreferrer">
               Sannjay
             </a>
-          </p>
-          <p className="text-gray-500 text-sm mt-2">
-            &copy; {new Date().getFullYear()} FileWizard. All rights reserved.
           </p>
         </div>
       </div>
