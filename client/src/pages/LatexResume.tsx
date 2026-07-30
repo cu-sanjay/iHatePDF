@@ -183,7 +183,7 @@ function parseLatexToPdf(latex: string, doc: jsPDF) {
       .replace(/~/g, " ")
       .replace(/---/g, "—")
       .replace(/--/g, "–")
-      .replace(/\\\[.*?\\\]/gs, "")
+      .replace(/\\\[[\s\S]*?\\\]/g, "")
       .replace(/\$[^$]*\$/g, "")
       .trim();
 

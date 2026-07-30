@@ -158,16 +158,16 @@ const SplitPdf = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-semibold text-[#555] uppercase tracking-wide block mb-2">Page Range</Label>
-                      <div className="flex gap-4 mb-2">
+                      <RadioGroup value={pageRange} onValueChange={(v) => setPageRange(v as "all" | "custom")} className="flex gap-4 mb-2">
                         <div className="flex items-center gap-2">
-                          <RadioGroupItem value="all" id="all-pages" checked={pageRange === "all"} onCheckedChange={c => c && setPageRange("all")} />
+                          <RadioGroupItem value="all" id="all-pages" />
                           <Label htmlFor="all-pages" className="text-sm cursor-pointer">All Pages ({totalPages})</Label>
                         </div>
                         <div className="flex items-center gap-2">
-                          <RadioGroupItem value="custom" id="custom-range" checked={pageRange === "custom"} onCheckedChange={c => c && setPageRange("custom")} />
+                          <RadioGroupItem value="custom" id="custom-range" />
                           <Label htmlFor="custom-range" className="text-sm cursor-pointer">Custom</Label>
                         </div>
-                      </div>
+                      </RadioGroup>
                       {pageRange === "custom" && (
                         <div>
                           <Input placeholder="e.g. 1-3, 5, 7-9" value={customRange} onChange={e => setCustomRange(e.target.value)} className="border-[#D0D0D0]" />

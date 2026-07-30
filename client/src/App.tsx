@@ -14,6 +14,8 @@ import SplitPdf from "@/pages/SplitPdf";
 import WatermarkPdf from "@/pages/WatermarkPdf";
 import LockPdf from "@/pages/LockPdf";
 import LatexResume from "@/pages/LatexResume";
+import EquationImage from "@/pages/EquationImage";
+import SignPdf from "@/pages/SignPdf";
 
 function Router() {
   return (
@@ -28,6 +30,8 @@ function Router() {
       <Route path="/watermark-pdf" component={WatermarkPdf} />
       <Route path="/lock-pdf" component={LockPdf} />
       <Route path="/latex-resume" component={LatexResume} />
+      <Route path="/equation-to-image" component={EquationImage} />
+      <Route path="/sign-pdf" component={SignPdf} />
       <Route component={NotFound} />
     </Switch>
   );

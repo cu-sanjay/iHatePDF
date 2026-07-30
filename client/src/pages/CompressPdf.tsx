@@ -60,7 +60,7 @@ const CompressPdf = () => {
     setProgress(0);
     try {
       const interval = setInterval(() => setProgress(p => Math.min(p + Math.random() * 5, 90)), 200);
-      const compressed = await compressPdf(pdfFile, { quality: compressionLevel, compressImages, removeMetadata });
+      const compressed = await compressPdf(pdfFile, { quality: compressionLevel, removeMetadata });
       clearInterval(interval);
       setProgress(100);
       const savings = Math.round((1 - compressed.size / pdfFile.size) * 100);

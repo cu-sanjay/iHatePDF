@@ -1,15 +1,29 @@
-import * as pdfjs from "pdfjs-dist";
-import { PDFDocument, StandardFonts, rgb, degrees, grayscale } from "pdf-lib";
-import { createFile, downloadFile } from "./fileUtils";
+import { PDFDocument, StandardFonts, rgb, degrees } from "pdf-lib";
+import { loadPdfDocument, renderPdfPageToCanvas } from "./pdfjs";
 
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+export { parsePageRange, loadPdfDocument, renderPdfPageToCanvas, renderPdfThumbnail } from "./pdfjs";
+
+/** pdf-lib returns Uint8Array; normalise it into a Blob-safe ArrayBuffer */
+const toBlobPart = (bytes: Uint8Array): ArrayBuffer => {
+  const copy = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(copy).set(bytes);
+  return copy;
+};
+
+const makePdfFile = (bytes: Uint8Array, name: string): File =>
+  new File([toBlobPart(bytes)], name, { type: "application/pdf" });
+
+export const getPdfPageCount = async (pdfFile: File): Promise<number> => {
+  const doc = await PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
+  return doc.getPageCount();
+};
 
 interface PdfToImageOptions {
   format?: "jpg" | "png" | "webp";
   quality?: number;
   scale?: number;
   pages?: number[] | "all";
+  onProgress?: (done: number, total: number) => void;
 }
 
 /**
@@ -19,119 +33,126 @@ export const convertPdfToImages = async (
   pdfFile: File,
   options: PdfToImageOptions = {}
 ): Promise<File[]> => {
-  const { format = "jpg", quality = 0.8, scale = 2, pages = "all" } = options;
+  const { format = "jpg", quality = 0.8, scale = 2, pages = "all", onProgress } = options;
 
-  // Load the PDF file
-  const arrayBuffer = await pdfFile.arrayBuffer();
-  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+  const pdf = await loadPdfDocument(pdfFile);
   const numPages = pdf.numPages;
 
-  // Determine which pages to convert
-  const pagesToConvert = pages === "all" 
-    ? Array.from({ length: numPages }, (_, i) => i + 1)
-    : pages.filter(p => p > 0 && p <= numPages);
+  const pagesToConvert =
+    pages === "all"
+      ? Array.from({ length: numPages }, (_, i) => i + 1)
+      : pages.filter((p) => p > 0 && p <= numPages);
 
   if (pagesToConvert.length === 0) {
     throw new Error("No valid pages to convert");
   }
 
-  // Convert each page
-  const imageFiles: File[] = [];
-  const mimeTypes = {
-    jpg: "image/jpeg",
-    png: "image/png",
-    webp: "image/webp",
-  };
+  const mimeTypes = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" } as const;
   const mimeType = mimeTypes[format];
+  const imageFiles: File[] = [];
 
-  for (const pageNum of pagesToConvert) {
-    // Get the page
-    const page = await pdf.getPage(pageNum);
-    
-    // Set up canvas for rendering
-    const viewport = page.getViewport({ scale });
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    
-    if (!context) {
-      throw new Error("Could not create canvas context");
-    }
-    
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    
-    // Render the page to canvas
-    await page.render({
-      canvasContext: context,
-      viewport,
-    }).promise;
-    
-    // Convert canvas to blob
-    const blob = await new Promise<Blob>((resolve) => {
-      canvas.toBlob((b) => resolve(b!), mimeType, quality);
+  for (let i = 0; i < pagesToConvert.length; i++) {
+    const pageNum = pagesToConvert[i];
+    const canvas = await renderPdfPageToCanvas(pdf, pageNum, scale);
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("Could not encode image"))),
+        mimeType,
+        format === "png" ? undefined : quality
+      );
     });
-    
-    // Create file from blob
+
     const fileName = `${pdfFile.name.replace(/\.pdf$/i, "")}_page_${pageNum}.${format}`;
-    const file = new File([blob], fileName, { type: mimeType });
-    
-    imageFiles.push(file);
+    imageFiles.push(new File([blob], fileName, { type: mimeType }));
+    onProgress?.(i + 1, pagesToConvert.length);
   }
 
+  await pdf.destroy();
   return imageFiles;
 };
 
 interface CompressPdfOptions {
   quality?: "low" | "medium" | "high";
-  compressImages?: boolean;
   removeMetadata?: boolean;
+  onProgress?: (done: number, total: number) => void;
 }
 
 /**
- * Compresses a PDF file
+ * Compresses a PDF by re-rasterising each page at a reduced resolution/quality.
+ * Falls back to a plain re-save when that would make the file bigger
+ * (e.g. text-only documents that are already small).
  */
 export const compressPdf = async (
   pdfFile: File,
   options: CompressPdfOptions = {}
 ): Promise<File> => {
-  const { quality = "medium", compressImages = true, removeMetadata = false } = options;
-  
-  // Quality settings
-  const qualitySettings = {
-    low: { imageQuality: 0.3, compressFactor: 0.5 },
-    medium: { imageQuality: 0.5, compressFactor: 0.7 },
-    high: { imageQuality: 0.7, compressFactor: 0.9 },
-  };
-  
-  const { imageQuality } = qualitySettings[quality];
-  
-  // Load the PDF document
-  const arrayBuffer = await pdfFile.arrayBuffer();
-  const pdfDoc = await PDFDocument.load(arrayBuffer);
-  
-  // Remove metadata if needed
+  const { quality = "medium", removeMetadata = true, onProgress } = options;
+
+  const presets = {
+    low: { scale: 1.0, imageQuality: 0.45 },
+    medium: { scale: 1.35, imageQuality: 0.65 },
+    high: { scale: 1.8, imageQuality: 0.82 },
+  } as const;
+  const { scale, imageQuality } = presets[quality];
+
+  const outName = pdfFile.name.replace(/\.pdf$/i, "") + "_compressed.pdf";
+
+  // Baseline: structural re-save (strips unused objects, optionally metadata)
+  const baseDoc = await PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
   if (removeMetadata) {
-    pdfDoc.setTitle("");
-    pdfDoc.setAuthor("");
-    pdfDoc.setSubject("");
-    pdfDoc.setKeywords([]);
-    pdfDoc.setProducer("");
-    pdfDoc.setCreator("");
+    baseDoc.setTitle("");
+    baseDoc.setAuthor("");
+    baseDoc.setSubject("");
+    baseDoc.setKeywords([]);
+    baseDoc.setProducer("iHatePDF");
+    baseDoc.setCreator("iHatePDF");
   }
-  
-  // Compress images if needed
-  if (compressImages) {
-    // This is a placeholder as pdf-lib doesn't directly support image compression
-    // In a real implementation, you would need to extract images, compress them, and replace them
-    // This would require additional libraries or a more complex approach
+  const baseBytes = await baseDoc.save({ useObjectStreams: true });
+
+  try {
+    const pdf = await loadPdfDocument(pdfFile);
+    const outDoc = await PDFDocument.create();
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const canvas = await renderPdfPageToCanvas(pdf, pageNum, scale);
+
+      // Flatten onto white so JPEG transparency does not turn black
+      const flat = document.createElement("canvas");
+      flat.width = canvas.width;
+      flat.height = canvas.height;
+      const fctx = flat.getContext("2d")!;
+      fctx.fillStyle = "#ffffff";
+      fctx.fillRect(0, 0, flat.width, flat.height);
+      fctx.drawImage(canvas, 0, 0);
+
+      const dataUrl = flat.toDataURL("image/jpeg", imageQuality);
+      const jpg = await outDoc.embedJpg(dataUrl);
+
+      const srcPage = await pdf.getPage(pageNum);
+      const [, , w, h] = srcPage.view;
+      const rotation = ((srcPage.rotate % 360) + 360) % 360;
+      const pageWidth = rotation === 90 || rotation === 270 ? h : w;
+      const pageHeight = rotation === 90 || rotation === 270 ? w : h;
+
+      const page = outDoc.addPage([pageWidth, pageHeight]);
+      page.drawImage(jpg, { x: 0, y: 0, width: pageWidth, height: pageHeight });
+      onProgress?.(pageNum, pdf.numPages);
+    }
+
+    outDoc.setProducer("iHatePDF");
+    outDoc.setCreator("iHatePDF");
+    const rasterBytes = await outDoc.save({ useObjectStreams: true });
+    await pdf.destroy();
+
+    const best =
+      rasterBytes.byteLength < baseBytes.byteLength && rasterBytes.byteLength < pdfFile.size
+        ? rasterBytes
+        : baseBytes;
+    return makePdfFile(best, outName);
+  } catch {
+    return makePdfFile(baseBytes, outName);
   }
-  
-  // Save the compressed PDF
-  const compressedPdfBytes = await pdfDoc.save();
-  
-  // Create a new file
-  const fileName = pdfFile.name.replace(/\.pdf$/i, "_compressed.pdf");
-  return new File([compressedPdfBytes], fileName, { type: "application/pdf" });
 };
 
 /**
@@ -141,27 +162,18 @@ export const mergePdfFiles = async (pdfFiles: File[]): Promise<File> => {
   if (pdfFiles.length === 0) {
     throw new Error("No PDF files to merge");
   }
-  
-  // Create a new PDF document
+
   const mergedPdf = await PDFDocument.create();
-  
-  // Add each PDF to the new document
+
   for (const pdfFile of pdfFiles) {
     const arrayBuffer = await pdfFile.arrayBuffer();
-    const pdf = await PDFDocument.load(arrayBuffer);
-    
-    // Copy pages from the source PDF to the merged PDF
+    const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
     const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-    pages.forEach((page) => {
-      mergedPdf.addPage(page);
-    });
+    pages.forEach((page) => mergedPdf.addPage(page));
   }
-  
-  // Save the merged PDF
+
   const mergedPdfBytes = await mergedPdf.save();
-  
-  // Create a new file
-  return new File([mergedPdfBytes], "merged.pdf", { type: "application/pdf" });
+  return makePdfFile(mergedPdfBytes, "merged.pdf");
 };
 
 interface WatermarkOptions {
@@ -180,20 +192,25 @@ export const addWatermark = async (
   const { text, opacity = 0.15, fontSize = 48 } = options;
 
   const arrayBuffer = await pdfFile.arrayBuffer();
-  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
   const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const pages = pdfDoc.getPages();
 
   for (const page of pages) {
     const { width, height } = page.getSize();
-    const textWidth = font.widthOfTextAtSize(text, fontSize);
-    const x = (width - textWidth * Math.cos(Math.PI / 4)) / 2;
-    const y = height / 2 - (fontSize * Math.sin(Math.PI / 4)) / 2;
+    // Shrink the watermark if it would overflow the page diagonal
+    let size = fontSize;
+    while (font.widthOfTextAtSize(text, size) > Math.hypot(width, height) * 0.85 && size > 8) {
+      size -= 2;
+    }
+    const textWidth = font.widthOfTextAtSize(text, size);
+    const x = width / 2 - (textWidth / 2) * Math.cos(Math.PI / 4) + (size / 2) * Math.sin(Math.PI / 4);
+    const y = height / 2 - (textWidth / 2) * Math.sin(Math.PI / 4) - (size / 2) * Math.cos(Math.PI / 4);
 
     page.drawText(text, {
       x,
       y,
-      size: fontSize,
+      size,
       font,
       color: rgb(0.9, 0.1, 0.1),
       opacity,
@@ -202,8 +219,7 @@ export const addWatermark = async (
   }
 
   const pdfBytes = await pdfDoc.save();
-  const outName = pdfFile.name.replace(/\.pdf$/i, "_watermarked.pdf");
-  return new File([pdfBytes], outName, { type: "application/pdf" });
+  return makePdfFile(pdfBytes, pdfFile.name.replace(/\.pdf$/i, "") + "_watermarked.pdf");
 };
 
 interface ProtectOptions {
@@ -221,7 +237,7 @@ export const protectPdf = async (
   const { watermarkText, removeMetadata = true } = options;
 
   const arrayBuffer = await pdfFile.arrayBuffer();
-  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
 
   if (removeMetadata) {
     pdfDoc.setTitle("");
@@ -235,13 +251,16 @@ export const protectPdf = async (
   if (watermarkText) {
     const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const pages = pdfDoc.getPages();
-    const fontSize = 52;
 
     for (const page of pages) {
       const { width, height } = page.getSize();
+      let fontSize = 52;
+      while (font.widthOfTextAtSize(watermarkText, fontSize) > Math.hypot(width, height) * 0.85 && fontSize > 8) {
+        fontSize -= 2;
+      }
       const textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-      const x = (width - textWidth * Math.cos(Math.PI / 4)) / 2;
-      const y = height / 2 - (fontSize * Math.sin(Math.PI / 4)) / 2;
+      const x = width / 2 - (textWidth / 2) * Math.cos(Math.PI / 4) + (fontSize / 2) * Math.sin(Math.PI / 4);
+      const y = height / 2 - (textWidth / 2) * Math.sin(Math.PI / 4) - (fontSize / 2) * Math.cos(Math.PI / 4);
 
       page.drawText(watermarkText, {
         x,
@@ -253,7 +272,6 @@ export const protectPdf = async (
         rotate: degrees(45),
       });
 
-      // Border overlay
       page.drawRectangle({
         x: 8,
         y: 8,
@@ -261,14 +279,14 @@ export const protectPdf = async (
         height: height - 16,
         borderColor: rgb(0.85, 0.1, 0.1),
         borderWidth: 2,
-        opacity: 0.3,
+        opacity: 0,
+        borderOpacity: 0.3,
       });
     }
   }
 
   const pdfBytes = await pdfDoc.save();
-  const outName = pdfFile.name.replace(/\.pdf$/i, "_protected.pdf");
-  return new File([pdfBytes], outName, { type: "application/pdf" });
+  return makePdfFile(pdfBytes, pdfFile.name.replace(/\.pdf$/i, "") + "_protected.pdf");
 };
 
 interface SplitPdfOptions {
@@ -284,49 +302,79 @@ export const splitPdf = async (
   options: SplitPdfOptions = {}
 ): Promise<File[]> => {
   const { pages = "all", outputType = "multiple" } = options;
-  
-  // Load the PDF document
+
   const arrayBuffer = await pdfFile.arrayBuffer();
-  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
   const numPages = pdfDoc.getPageCount();
-  
-  // Determine which pages to extract
-  const pagesToExtract = pages === "all" 
-    ? Array.from({ length: numPages }, (_, i) => i)
-    : pages.filter(p => p > 0 && p <= numPages).map(p => p - 1);
-  
+
+  const pagesToExtract =
+    pages === "all"
+      ? Array.from({ length: numPages }, (_, i) => i)
+      : pages.filter((p) => p > 0 && p <= numPages).map((p) => p - 1);
+
   if (pagesToExtract.length === 0) {
     throw new Error("No valid pages to extract");
   }
-  
-  // Split into single document with selected pages
+
+  const baseName = pdfFile.name.replace(/\.pdf$/i, "");
+
   if (outputType === "single") {
     const newPdf = await PDFDocument.create();
-    
-    for (const pageIndex of pagesToExtract) {
-      const [page] = await newPdf.copyPages(pdfDoc, [pageIndex]);
-      newPdf.addPage(page);
-    }
-    
+    const copied = await newPdf.copyPages(pdfDoc, pagesToExtract);
+    copied.forEach((page) => newPdf.addPage(page));
     const newPdfBytes = await newPdf.save();
-    const fileName = pdfFile.name.replace(/\.pdf$/i, "_extracted.pdf");
-    
-    return [new File([newPdfBytes], fileName, { type: "application/pdf" })];
+    return [makePdfFile(newPdfBytes, `${baseName}_extracted.pdf`)];
   }
-  
-  // Split into multiple documents, one per page
+
   const outputFiles: File[] = [];
-  
   for (const pageIndex of pagesToExtract) {
     const newPdf = await PDFDocument.create();
     const [page] = await newPdf.copyPages(pdfDoc, [pageIndex]);
     newPdf.addPage(page);
-    
     const newPdfBytes = await newPdf.save();
-    const fileName = `${pdfFile.name.replace(/\.pdf$/i, "")}_page_${pageIndex + 1}.pdf`;
-    
-    outputFiles.push(new File([newPdfBytes], fileName, { type: "application/pdf" }));
+    outputFiles.push(makePdfFile(newPdfBytes, `${baseName}_page_${pageIndex + 1}.pdf`));
   }
-  
+
   return outputFiles;
+};
+
+export interface SignaturePlacement {
+  pageNumber: number; // 1-based
+  /** all values are ratios (0-1) of the rendered page box */
+  xRatio: number;
+  yRatio: number;
+  widthRatio: number;
+  heightRatio: number;
+  dataUrl: string; // PNG data URL
+}
+
+/**
+ * Stamps one or more signature images onto a PDF.
+ */
+export const signPdf = async (
+  pdfFile: File,
+  placements: SignaturePlacement[]
+): Promise<File> => {
+  if (placements.length === 0) throw new Error("No signatures placed");
+
+  const pdfDoc = await PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
+  const pages = pdfDoc.getPages();
+
+  for (const placement of placements) {
+    const page = pages[placement.pageNumber - 1];
+    if (!page) continue;
+    const { width, height } = page.getSize();
+    const png = await pdfDoc.embedPng(placement.dataUrl);
+    const drawWidth = placement.widthRatio * width;
+    const drawHeight = placement.heightRatio * height;
+    page.drawImage(png, {
+      x: placement.xRatio * width,
+      y: height - placement.yRatio * height - drawHeight,
+      width: drawWidth,
+      height: drawHeight,
+    });
+  }
+
+  const bytes = await pdfDoc.save();
+  return makePdfFile(bytes, pdfFile.name.replace(/\.pdf$/i, "") + "_signed.pdf");
 };
