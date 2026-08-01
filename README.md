@@ -17,12 +17,9 @@
 [![pdf-lib](https://img.shields.io/badge/pdf--lib-PDF_engine-FF4438?style=flat-square)](https://pdf-lib.js.org)
 [![PDF.js](https://img.shields.io/badge/PDF.js-rendering-D93025?style=flat-square&logo=mozilla&logoColor=white)](https://mozilla.github.io/pdf.js/)
 
-<!-- 📸 Add your hero screenshot here -->
 <img src="https://github.com/user-attachments/assets/cb97aab7-6c03-41da-81ee-2cc93bef2a2b" alt="iHatePDF banner" width="100%" />
 
 </div>
-
----
 
 ## 📌 Table of Contents
 
@@ -32,16 +29,13 @@
 - [Screenshots](#-screenshots)
 - [Tech Stack](#-tech-stack)
 - [Getting Started](#-getting-started)
-- [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
 - [License](#-license)
-
----
 
 ## ✨ What's New
 
 > [!NOTE]
-> **v2.0 — The Glass Update.** A full UI reimagination: glassmorphic surfaces, iPhone-style curvature, and motion on every interaction — all in the original red / white / black light theme.
+> **v3.0**
 
 <table>
 <tr>
@@ -88,13 +82,8 @@ Live preview per quality level, predicted output size, and target-size mode for 
 </tr>
 </table>
 
-> [!TIP]
-> Every page now has a persistent **Back to Tools** control, so you can never get stranded inside a tool.
-
 > [!IMPORTANT]
-> Your files **never leave your device**. All parsing, rendering and export happens in the browser — there is no upload endpoint at all.
-
----
+> Your files **never leave your device**. All parsing, rendering and export happens in the browser, there is no upload endpoint at all.
 
 ## 🚀 Why iHatePDF
 
@@ -105,8 +94,6 @@ Live preview per quality level, predicted output size, and target-size mode for 
 | 👤 **No account** | Open the site and start working. That's it. |
 | ⚡ **Instant** | No queues, no round-trips — conversion speed is your CPU's speed. |
 | 📱 **Works anywhere** | Responsive, touch-friendly layouts from phones to ultrawide screens. |
-
----
 
 ## 🧰 Tools
 
@@ -137,30 +124,23 @@ Live preview per quality level, predicted output size, and target-size mode for 
 | **LaTeX Resume** | `/latex-resume` | Write LaTeX-style resumes and export to PDF |
 | **Resume Builder** | `/resume-builder` | Form-driven resume templates, no LaTeX needed |
 
----
-
 ## 📸 Screenshots
-
-> [!NOTE]
-> Drop your screenshots into the table below — replace each `PASTE_IMAGE_URL` with a GitHub asset link.
 
 <div align="center">
 
 | Home — Drag & Drop Hero | Tools Grid |
 |:--:|:--:|
-| <img src="PASTE_IMAGE_URL" alt="Home hero with animated dropzone" width="100%"/> | <img src="PASTE_IMAGE_URL" alt="Tools grid" width="100%"/> |
+| <img src="https://github.com/user-attachments/assets/bfc26746-d6f7-482e-aa71-3056cda73495" alt="Home hero with animated dropzone" width="100%"/> | <img src="https://github.com/user-attachments/assets/cfc9cc23-0c81-4930-91cc-df304c46644f" alt="Tools grid" width="100%"/> |
 
 | Compress PDF — Live Preview | Sign PDF — Signature Placement |
 |:--:|:--:|
-| <img src="PASTE_IMAGE_URL" alt="Compress PDF preview" width="100%"/> | <img src="PASTE_IMAGE_URL" alt="Sign PDF" width="100%"/> |
+| <img src="https://github.com/user-attachments/assets/ce0522d2-4541-4a3e-8354-73b77518dc0a" alt="Compress PDF preview" width="100%"/> | <img src="https://github.com/user-attachments/assets/68161f0b-2dd5-47a1-9b24-24f948719dc9" alt="Sign PDF" width="100%"/> |
 
-| Equation → Image | LaTeX Resume |
+| Equation → Image | Watermark PDF/Image |
 |:--:|:--:|
-| <img src="PASTE_IMAGE_URL" alt="Equation to image" width="100%"/> | <img src="PASTE_IMAGE_URL" alt="LaTeX resume" width="100%"/> |
+| <img src="https://github.com/user-attachments/assets/cb8c3b5b-e3d3-476b-a1b9-fed11773f163" alt="Equation to image" width="100%"/> | <img src="https://github.com/user-attachments/assets/2f8995ca-241a-485d-a6a2-0ca3d73aa45f" alt="Watermark PDF/Image" width="100%"/> |
 
 </div>
-
----
 
 ## 🛠 Tech Stack
 
@@ -192,22 +172,13 @@ Live preview per quality level, predicted output size, and target-size mode for 
 **Math**
 - `katex` — client-side LaTeX math typesetting for the equation tool
 
-**App plumbing**
-- `wouter` — tiny client-side router
-- `@tanstack/react-query` — async state
-- `react-hook-form` + `zod` — forms and validation
-- `express` — static production server
-- `drizzle-orm` — schema layer (optional, unused for core tools)
-
 </details>
-
----
 
 ## ⚡ Getting Started
 
 ```bash
 # 1 · clone
-git clone https://github.com/your-username/iHatePDF.git
+git clone https://github.com/cu-sanjay/iHatePDF.git
 cd iHatePDF
 
 # 2 · install
@@ -229,23 +200,6 @@ Then open **http://localhost:5000**.
 > [!WARNING]
 > Large PDFs are processed entirely in memory. On low-RAM devices, very large files (100 MB+) may be slow or fail — split them first.
 
----
-
-## 🗂 Project Structure
-
-```text
-client/
-├─ src/
-│  ├─ components/     # Header, Footer, DropHero, ToolLayout, shadcn/ui
-│  ├─ context/        # FileVault — files shared across all tools
-│  ├─ pages/          # One file per tool route
-│  ├─ lib/            # pdfUtils, imageUtils, mathUtils, pdfjs setup
-│  └─ index.css       # Design tokens + glass utilities
-server/               # Express static server for production
-shared/               # Shared types & schema
-```
-
----
 
 ## 🤝 Contributing
 
@@ -254,14 +208,12 @@ shared/               # Shared types & schema
 3. Match the design language: light theme, red `#E63228` / white / black, glass surfaces, rounded corners.
 4. Run `npm run check` before opening a PR.
 
----
-
 ## 📄 License
 
 Released under the **MIT License** — see [LICENSE](./LICENSE). Use it, fork it, ship it.
 
 <div align="center">
 
-**Built with ❤️ by [Sannjay](https://github.com/)** · If this saved you a subscription, leave a ⭐
+**Built with ❤️ by [Sannjay](https://github.com/cu-sanjay)** · If this saved you a subscription, leave a ⭐
 
 </div>
