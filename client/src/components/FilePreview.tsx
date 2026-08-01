@@ -46,8 +46,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({
 
   if (fileType === "pdf" && files.length === 1) {
     return (
-      <div className={`border border-[#E0E0E0] mb-6 overflow-hidden ${className}`}>
-        <div className="bg-[#F5F5F5] border-b border-[#E0E0E0] px-4 py-2.5 flex justify-between items-center">
+      <div className={`mb-6 overflow-hidden rounded-2xl border border-black/[0.08] bg-white/65 shadow-[0_24px_70px_-48px_rgba(0,0,0,0.5)] backdrop-blur-2xl ${className}`}>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-black/[0.06] bg-white/55 px-4 py-3">
           <div className="flex items-center gap-2">
             <PdfIcon className="h-5 w-5" />
             <span className="text-sm font-medium text-[#0A0A0A] truncate max-w-[280px]">{files[0].name}</span>
@@ -64,8 +64,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({
         </div>
         <div className="p-5 flex flex-col items-center justify-center bg-white">
           {previewUrls.length > 0 ? (
-            <div className="w-full max-w-xs border border-[#E0E0E0] mb-3 overflow-hidden">
-              <img src={previewUrls[0]} alt="PDF preview" className="w-full h-auto" />
+            <div className="mb-3 aspect-[1/1.35] w-full max-w-xs overflow-hidden rounded-xl border border-black/[0.08] bg-[#FAFAFA] shadow-sm">
+              <img src={previewUrls[0]} alt={`First page preview of ${files[0].name}`} className="h-full w-full object-contain" />
             </div>
           ) : (
             <div className="w-full max-w-xs flex items-center justify-center p-8 bg-[#FAFAFA] border border-[#E0E0E0] mb-3">

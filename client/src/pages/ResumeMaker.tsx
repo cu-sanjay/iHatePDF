@@ -1,3 +1,4 @@
+import BackToTools from "@/components/BackToTools";
 import { useState, useCallback, useRef } from "react";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -305,6 +306,7 @@ const ResumeMaker = () => {
   return (
     <section className="py-10 bg-[#F5F5F5] min-h-[60vh]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <BackToTools />
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 h-0.5 bg-[#E63228]" />
@@ -316,7 +318,7 @@ const ResumeMaker = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Resume Form */}
-          <div className="bg-white border border-[#E0E0E0] overflow-hidden">
+          <div className="bg-white/90 backdrop-blur-sm border border-[#E0E0E0] rounded-xl shadow-sm overflow-hidden">
             <div className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-4 mb-6">

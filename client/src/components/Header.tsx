@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { ArrowLeft, Menu, X } from "lucide-react";
 
 const Logo = () => (
   <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,6 +12,7 @@ const Logo = () => (
 );
 
 const navItems = [
+  { label: "Drop Vault", href: "/drop" },
   { label: "Tools", href: "/#tools" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "FAQ", href: "/#faq" },
@@ -22,10 +23,22 @@ const Header = () => {
   const [location] = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b-2 border-[#E63228]">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/90 backdrop-blur-2xl">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
-          <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setIsMenuOpen(false)}>
+          <div className="flex min-w-0 items-center gap-2">
+          {location !== "/" && (
+            <button
+              type="button"
+              aria-label="Go back"
+              title="Go back"
+              onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = "/")}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition hover:bg-white/20"
+            >
+              <ArrowLeft size={17} />
+            </button>
+          )}
+          <Link href="/" className="flex min-w-0 items-center gap-2.5 group" onClick={() => setIsMenuOpen(false)}>
             <div className="flex items-center justify-center w-8 h-8 bg-[#0A0A0A] border border-[#E63228]">
               <Logo />
             </div>
@@ -33,6 +46,7 @@ const Header = () => {
               i<span className="text-[#E63228]">Hate</span>PDF
             </span>
           </Link>
+          </div>
 
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (

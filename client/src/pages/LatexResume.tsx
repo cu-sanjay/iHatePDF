@@ -1,3 +1,4 @@
+import BackToTools from "@/components/BackToTools";
 import { useState, useCallback } from "react";
 import { jsPDF } from "jspdf";
 import { Download, Copy, FileText, ChevronDown, RefreshCw, Eye } from "lucide-react";
@@ -459,7 +460,7 @@ const LatexResume = () => {
         </Alert>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-          <div className="bg-white border border-[#E0E0E0] overflow-hidden">
+          <div className="bg-white/90 backdrop-blur-sm border border-[#E0E0E0] rounded-xl shadow-sm overflow-hidden">
             <div className="bg-[#0A0A0A] px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
@@ -486,7 +487,7 @@ const LatexResume = () => {
           />
           </div>
 
-          <div className="bg-white border border-[#E0E0E0] overflow-hidden">
+          <div className="bg-white/90 backdrop-blur-sm border border-[#E0E0E0] rounded-xl shadow-sm overflow-hidden">
             <div className="bg-[#0A0A0A] px-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Eye size={14} className="text-white" />

@@ -1,5 +1,5 @@
 import katex from "katex";
-import html2canvas from "html2canvas";
+import { toJpeg, toPng } from "html-to-image";
 
 export interface EquationRenderOptions {
   displayMode?: boolean;
@@ -51,7 +51,7 @@ export const equationToImage = async (
     scale = 3,
     color = "#0A0A0A",
     background = null,
-    padding = 8,
+    padding = 18,
     format = "png",
   } = options;
 
@@ -60,16 +60,23 @@ export const equationToImage = async (
   const host = document.createElement("div");
   host.setAttribute("aria-hidden", "true");
   host.style.position = "fixed";
-  host.style.left = "-100000px";
+  host.style.left = "0";
   host.style.top = "0";
   host.style.zIndex = "-1";
+  host.style.pointerEvents = "none";
   host.style.display = "inline-block";
-  host.style.padding = `${padding}px`;
+  host.style.padding = `${padding}px ${padding + 4}px`;
   host.style.color = color;
   host.style.fontSize = `${fontSizePx}px`;
-  host.style.lineHeight = "normal";
+  host.style.overflow = "visible";
   host.style.background = transparent ? "transparent" : background ?? "#ffffff";
   host.innerHTML = renderEquationHtml(latex, displayMode);
+  const katexDisplay = host.querySelector<HTMLElement>(".katex-display");
+  if (katexDisplay) {
+    katexDisplay.style.margin = "0";
+    katexDisplay.style.padding = "0.18em 0";
+    katexDisplay.style.overflow = "visible";
+  }
 
   document.body.appendChild(host);
 
@@ -80,27 +87,23 @@ export const equationToImage = async (
     // Give KaTeX fonts one frame to apply before rasterising
     await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
 
-    const canvas = await html2canvas(host, {
-      backgroundColor: transparent ? null : background ?? "#ffffff",
-      scale,
-      logging: false,
-      useCORS: true,
-    });
-
-    const mime = format === "jpg" ? "image/jpeg" : "image/png";
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (b) => (b ? resolve(b) : reject(new Error("Could not encode equation image"))),
-        mime,
-        format === "jpg" ? 0.95 : undefined
-      );
-    });
+    const bounds = host.getBoundingClientRect();
+    const renderOptions = {
+      pixelRatio: scale,
+      cacheBust: true,
+      skipFonts: true,
+      backgroundColor: transparent ? undefined : background ?? "#ffffff",
+    };
+    const dataUrl = format === "jpg"
+      ? await toJpeg(host, { ...renderOptions, quality: 0.95 })
+      : await toPng(host, renderOptions);
+    const blob = await fetch(dataUrl).then((response) => response.blob());
 
     return {
       blob,
-      dataUrl: canvas.toDataURL(mime, 0.95),
-      width: canvas.width,
-      height: canvas.height,
+      dataUrl,
+      width: Math.max(1, Math.ceil(bounds.width * scale)),
+      height: Math.max(1, Math.ceil(bounds.height * scale)),
     };
   } finally {
     host.remove();

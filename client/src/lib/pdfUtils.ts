@@ -75,6 +75,7 @@ export const convertPdfToImages = async (
 interface CompressPdfOptions {
   quality?: "low" | "medium" | "high";
   removeMetadata?: boolean;
+  targetSizeKB?: number;
   onProgress?: (done: number, total: number) => void;
 }
 
@@ -87,14 +88,19 @@ export const compressPdf = async (
   pdfFile: File,
   options: CompressPdfOptions = {}
 ): Promise<File> => {
-  const { quality = "medium", removeMetadata = true, onProgress } = options;
+  const { quality = "medium", removeMetadata = true, targetSizeKB, onProgress } = options;
 
   const presets = {
-    low: { scale: 1.0, imageQuality: 0.45 },
+    low: { scale: 1.8, imageQuality: 0.84 },
     medium: { scale: 1.35, imageQuality: 0.65 },
-    high: { scale: 1.8, imageQuality: 0.82 },
+    high: { scale: 0.95, imageQuality: 0.44 },
   } as const;
-  const { scale, imageQuality } = presets[quality];
+  const preset = presets[quality];
+  const targetRatio = targetSizeKB && targetSizeKB > 0
+    ? Math.min(1, (targetSizeKB * 1024) / pdfFile.size)
+    : 1;
+  const scale = Math.max(0.65, preset.scale * Math.max(0.72, Math.sqrt(targetRatio)));
+  const imageQuality = Math.max(0.25, preset.imageQuality * Math.max(0.55, targetRatio));
 
   const outName = pdfFile.name.replace(/\.pdf$/i, "") + "_compressed.pdf";
 

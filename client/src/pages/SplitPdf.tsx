@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import BackToTools from "@/components/BackToTools";
 import FileUpload from "@/components/FileUpload";
 import FilePreview from "@/components/FilePreview";
 import { Scissors, Download, FileText } from "lucide-react";
@@ -114,6 +115,7 @@ const SplitPdf = () => {
   return (
     <section className="py-10 bg-[#F5F5F5] min-h-[60vh]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <BackToTools />
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 h-0.5 bg-[#E63228]" />
@@ -123,7 +125,7 @@ const SplitPdf = () => {
           <p className="text-[#666] text-sm mt-1">Extract pages or split a PDF into multiple files</p>
         </div>
 
-        <div className="max-w-2xl bg-white border border-[#E0E0E0]">
+        <div className="max-w-2xl bg-white/90 backdrop-blur-sm border border-[#E0E0E0] rounded-xl shadow-sm">
           <div className="p-6">
             {!pdfFile ? (
               <FileUpload

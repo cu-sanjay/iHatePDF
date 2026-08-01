@@ -1,56 +1,267 @@
-# iHatePDF - Free Online File Conversion Tools
+<div align="center">
 
-iHatePDF is a modern, browser-based application for PDF and file conversions. It offers a variety of tools to convert, manipulate, and optimize files entirely on the client-side without requiring any server processing or user authentication.
+# 🧨 iHatePDF
 
-[![FileWizard Banner](https://github.com/user-attachments/assets/cb97aab7-6c03-41da-81ee-2cc93bef2a2b)](https://i-hate-pdf.vercel.app/)
+### Every PDF tool you need — 100% in your browser. Zero uploads. Zero accounts.
 
-## Features
+[![Live Demo](https://img.shields.io/badge/Live_Demo-i--hate--pdf-E63228?style=for-the-badge&logo=vercel&logoColor=white)](https://i-hate-pdf.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-0A0A0A?style=for-the-badge)](./LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](#-contributing)
 
-### PDF Tools
-- **PDF to Image Conversion**: Convert PDF documents to JPG, PNG, or WebP formats
-- **Image to PDF Conversion**: Combine multiple images into a single PDF document
-- **PDF Compression**: Reduce PDF file size while maintaining quality
-- **Merge PDFs**: Combine multiple PDF files into a single document
-- **Split PDF**: Extract specific pages or split PDF into multiple files
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![KaTeX](https://img.shields.io/badge/KaTeX-math-329932?style=flat-square)](https://katex.org)
+[![pdf-lib](https://img.shields.io/badge/pdf--lib-PDF_engine-FF4438?style=flat-square)](https://pdf-lib.js.org)
+[![PDF.js](https://img.shields.io/badge/PDF.js-rendering-D93025?style=flat-square&logo=mozilla&logoColor=white)](https://mozilla.github.io/pdf.js/)
 
-### Other Tools
-- **Resume Builder**: Create professional resumes using customizable templates
+<!-- 📸 Add your hero screenshot here -->
+<img src="https://github.com/user-attachments/assets/cb97aab7-6c03-41da-81ee-2cc93bef2a2b" alt="iHatePDF banner" width="100%" />
 
-### Key Benefits
-- **Free to Use**: No hidden fees or premium features
-- **No Account Required**: Start using the tools immediately
-- **Complete Privacy**: All processing happens in your browser - files never leave your device
-- **High Quality**: Maintains file integrity during conversion processes
-- **User-Friendly Interface**: Simple, intuitive design for easy use
+</div>
 
-## Technologies Used
+---
 
-### Frontend
-- **React**: Frontend library for building the user interface
-- **TypeScript**: Type-safe JavaScript for better code quality
-- **Tailwind CSS**: Utility-first CSS framework for styling
-- **Shadcn UI**: Component library for clean, consistent UI
-- **React Router (Wouter)**: Lightweight client-side routing
-- **PDF.js**: Rendering PDF documents in the browser
-- **pdf-lib**: Manipulating PDF documents
-- **jsPDF**: Generating PDF documents from JavaScript
-- **html2canvas**: Capturing DOM elements as images
+## 📌 Table of Contents
 
-### Backend & Build
-- **Vite**
-- **Node.js + Express**
-- **Drizzle ORM**
-- **Zod / React Hook Form**
-- **Framer Motion**
-- **Radix UI / Lucide Icons / Embla Carousel**
+- [What's New](#-whats-new)
+- [Why iHatePDF](#-why-ihatepdf)
+- [Tools](#-tools)
+- [Screenshots](#-screenshots)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-### Build/Development
-- **Vite**: Modern frontend build tool
-- **Node.js/Express**: Lightweight server for production deployment
+---
 
-## License
+## ✨ What's New
 
-This project is licensed under the **MIT License**.  
-You are free to use, modify, and distribute this software with attribution.  
+> [!NOTE]
+> **v2.0 — The Glass Update.** A full UI reimagination: glassmorphic surfaces, iPhone-style curvature, and motion on every interaction — all in the original red / white / black light theme.
 
-See the full license in the [LICENSE](./LICENSE) file.
+<table>
+<tr>
+<td width="50%">
+
+**🪄 Drag & Drop Hero**
+Drop files once on the home page and they follow you everywhere. No re-uploading between tools.
+
+</td>
+<td width="50%">
+
+**🗂️ File Vault**
+A shared in-memory vault carries your PDFs and images across every tool page automatically.
+
+</td>
+</tr>
+<tr>
+<td>
+
+**🖼️ Real PDF Previews**
+Page thumbnails render everywhere, with a graceful PDF-icon fallback if a file can't be parsed.
+
+</td>
+<td>
+
+**🧮 Equation → Image**
+Type LaTeX, get a pixel-tight cropped PNG for papers, reports and slides. Fraction rules now align perfectly.
+
+</td>
+</tr>
+<tr>
+<td>
+
+**✍️ Sign PDF**
+Draw a signature on a signpad, then place, drag and resize it anywhere on the page.
+
+</td>
+<td>
+
+**📉 Smarter Compression**
+Live preview per quality level, predicted output size, and target-size mode for PDFs and images.
+
+</td>
+</tr>
+</table>
+
+> [!TIP]
+> Every page now has a persistent **Back to Tools** control, so you can never get stranded inside a tool.
+
+> [!IMPORTANT]
+> Your files **never leave your device**. All parsing, rendering and export happens in the browser — there is no upload endpoint at all.
+
+---
+
+## 🚀 Why iHatePDF
+
+| | |
+|---|---|
+| 🔒 **Private by design** | Files are processed locally; nothing is uploaded, logged or stored. |
+| 🆓 **Free forever** | No paywalls, no premium tier, no watermarks on your output. |
+| 👤 **No account** | Open the site and start working. That's it. |
+| ⚡ **Instant** | No queues, no round-trips — conversion speed is your CPU's speed. |
+| 📱 **Works anywhere** | Responsive, touch-friendly layouts from phones to ultrawide screens. |
+
+---
+
+## 🧰 Tools
+
+### 📄 PDF
+
+| Tool | Route | What it does |
+|---|---|---|
+| **Merge PDFs** | `/merge-pdfs` | Combine multiple PDFs, reorder pages before export |
+| **Split PDF** | `/split-pdf` | Extract page ranges or burst into separate files |
+| **Compress PDF** | `/compress-pdf` | Quality presets with live preview + target file size |
+| **PDF → Image** | `/pdf-to-image` | Export pages as JPG, PNG or WebP at chosen DPI |
+| **Image → PDF** | `/image-to-pdf` | Merge images into one document with page sizing |
+| **Watermark PDF** | `/watermark-pdf` | Text watermarks with opacity, rotation and position |
+| **Lock PDF** | `/lock-pdf` | Password-protect a document |
+| **Sign PDF** | `/sign-pdf` | Draw a signature and place / resize it on any page |
+
+### 🖼️ Image
+
+| Tool | Route | What it does |
+|---|---|---|
+| **Compress Image** | `/compress-image` | Quality slider, live preview, predicted size |
+
+### 🧮 Documents & Math
+
+| Tool | Route | What it does |
+|---|---|---|
+| **Equation → Image** | `/equation-to-image` | LaTeX math rendered to a cropped, transparent PNG |
+| **LaTeX Resume** | `/latex-resume` | Write LaTeX-style resumes and export to PDF |
+| **Resume Builder** | `/resume-builder` | Form-driven resume templates, no LaTeX needed |
+
+---
+
+## 📸 Screenshots
+
+> [!NOTE]
+> Drop your screenshots into the table below — replace each `PASTE_IMAGE_URL` with a GitHub asset link.
+
+<div align="center">
+
+| Home — Drag & Drop Hero | Tools Grid |
+|:--:|:--:|
+| <img src="PASTE_IMAGE_URL" alt="Home hero with animated dropzone" width="100%"/> | <img src="PASTE_IMAGE_URL" alt="Tools grid" width="100%"/> |
+
+| Compress PDF — Live Preview | Sign PDF — Signature Placement |
+|:--:|:--:|
+| <img src="PASTE_IMAGE_URL" alt="Compress PDF preview" width="100%"/> | <img src="PASTE_IMAGE_URL" alt="Sign PDF" width="100%"/> |
+
+| Equation → Image | LaTeX Resume |
+|:--:|:--:|
+| <img src="PASTE_IMAGE_URL" alt="Equation to image" width="100%"/> | <img src="PASTE_IMAGE_URL" alt="LaTeX resume" width="100%"/> |
+
+</div>
+
+---
+
+## 🛠 Tech Stack
+
+<div align="center">
+
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=for-the-badge&logo=radixui&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+
+</div>
+
+<details>
+<summary><b>📦 Full dependency breakdown</b></summary>
+
+**UI & Motion**
+- `tailwindcss` + `shadcn/ui` + `@radix-ui/*` — accessible, themeable components
+- `framer-motion` — hero animations, layout transitions, drag interactions
+- `lucide-react` — icon set
+
+**PDF & Imaging**
+- `pdfjs-dist` — page rendering and previews (bundled worker, no CDN)
+- `pdf-lib` — merge, split, watermark, encrypt, signature placement
+- `jspdf` + `html2canvas` / `html-to-image` — DOM → PDF/PNG export
+
+**Math**
+- `katex` — client-side LaTeX math typesetting for the equation tool
+
+**App plumbing**
+- `wouter` — tiny client-side router
+- `@tanstack/react-query` — async state
+- `react-hook-form` + `zod` — forms and validation
+- `express` — static production server
+- `drizzle-orm` — schema layer (optional, unused for core tools)
+
+</details>
+
+---
+
+## ⚡ Getting Started
+
+```bash
+# 1 · clone
+git clone https://github.com/your-username/iHatePDF.git
+cd iHatePDF
+
+# 2 · install
+npm install
+
+# 3 · run
+npm run dev
+```
+
+Then open **http://localhost:5000**.
+
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Start the dev server with HMR |
+| `npm run build` | Production build (client + server bundle) |
+| `npm start` | Serve the production build |
+| `npm run check` | TypeScript typecheck |
+
+> [!WARNING]
+> Large PDFs are processed entirely in memory. On low-RAM devices, very large files (100 MB+) may be slow or fail — split them first.
+
+---
+
+## 🗂 Project Structure
+
+```text
+client/
+├─ src/
+│  ├─ components/     # Header, Footer, DropHero, ToolLayout, shadcn/ui
+│  ├─ context/        # FileVault — files shared across all tools
+│  ├─ pages/          # One file per tool route
+│  ├─ lib/            # pdfUtils, imageUtils, mathUtils, pdfjs setup
+│  └─ index.css       # Design tokens + glass utilities
+server/               # Express static server for production
+shared/               # Shared types & schema
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo and create a branch: `git checkout -b feat/my-tool`
+2. Keep everything **client-side** — no upload endpoints.
+3. Match the design language: light theme, red `#E63228` / white / black, glass surfaces, rounded corners.
+4. Run `npm run check` before opening a PR.
+
+---
+
+## 📄 License
+
+Released under the **MIT License** — see [LICENSE](./LICENSE). Use it, fork it, ship it.
+
+<div align="center">
+
+**Built with ❤️ by [Sannjay](https://github.com/)** · If this saved you a subscription, leave a ⭐
+
+</div>

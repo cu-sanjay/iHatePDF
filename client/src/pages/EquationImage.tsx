@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import "katex/dist/katex.min.css";
+import BackToTools from "@/components/BackToTools";
 import { Download, Copy, Sigma, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -98,6 +99,7 @@ const EquationImage = () => {
   return (
     <section className="py-8 sm:py-10 bg-[#F5F5F5] min-h-[70vh]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <BackToTools />
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 h-0.5 bg-[#E63228]" />
@@ -199,8 +201,9 @@ const EquationImage = () => {
                 }}
               >
                 {latex.trim() ? (
-                  <div
-                    style={{ color, fontSize: 30 }}
+                    <div
+                    className="equation-preview py-2"
+                    style={{ color, fontSize: 30, overflow: "visible" }}
                     dangerouslySetInnerHTML={{ __html: previewHtml }}
                   />
                 ) : (

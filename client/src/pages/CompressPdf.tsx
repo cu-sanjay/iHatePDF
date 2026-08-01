@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
+import BackToTools from "@/components/BackToTools";
 import FileUpload from "@/components/FileUpload";
 import FilePreview from "@/components/FilePreview";
-import { FileDown, Download } from "lucide-react";
+import { FileDown, Download, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -23,11 +24,15 @@ const CompressPdf = () => {
   const [optimizeFonts, setOptimizeFonts] = useState(true);
   const [isCompressing, setIsCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [targetSizeKB, setTargetSizeKB] = useState("");
+  const [outputName, setOutputName] = useState("");
+  const [compressedPreviewUrl, setCompressedPreviewUrl] = useState("");
   const [compressedPdf, setCompressedPdf] = useState<{ file: File; originalSize: string; compressedSize: string; savingsPercent: number } | null>(null);
 
   const handlePdfSelected = useCallback(async (files: File[]) => {
     if (files.length > 0 && files[0].type === "application/pdf") {
       setPdfFile(files[0]);
+      setOutputName(`${files[0].name.replace(/\.pdf$/i, "")}_compressed.pdf`);
       try {
         const url = await generateFilePreview(files[0]);
         setPdfPreviewUrl(url);
@@ -35,8 +40,9 @@ const CompressPdf = () => {
         setIsCompressing(false);
         setProgress(0);
         setCompressedPdf(null);
-      } catch {
-        toast({ variant: "destructive", title: "Preview failed" });
+      } catch (error) {
+        console.error("PDF preview failed", error);
+        toast({ variant: "destructive", title: "Preview failed", description: error instanceof Error ? error.message : "The PDF could not be rendered." });
       }
     }
   }, [toast]);
@@ -48,6 +54,9 @@ const CompressPdf = () => {
     setIsCompressing(false);
     setProgress(0);
     setCompressedPdf(null);
+    setCompressedPreviewUrl("");
+    setTargetSizeKB("");
+    setOutputName("");
     setCompressionLevel("medium");
     setCompressImages(true);
     setRemoveMetadata(false);
@@ -60,17 +69,28 @@ const CompressPdf = () => {
     setProgress(0);
     try {
       const interval = setInterval(() => setProgress(p => Math.min(p + Math.random() * 5, 90)), 200);
-      const compressed = await compressPdf(pdfFile, { quality: compressionLevel, removeMetadata });
+      const target = Number(targetSizeKB);
+      const compressed = await compressPdf(pdfFile, {
+        quality: compressionLevel,
+        removeMetadata,
+        targetSizeKB: Number.isFinite(target) && target > 0 ? target : undefined,
+        onProgress: (done, total) => setProgress(Math.max(5, Math.round((done / total) * 95))),
+      });
       clearInterval(interval);
       setProgress(100);
       const savings = Math.round((1 - compressed.size / pdfFile.size) * 100);
       setCompressedPdf({ file: compressed, originalSize: formatFileSize(pdfFile.size), compressedSize: formatFileSize(compressed.size), savingsPercent: savings });
+      try {
+        setCompressedPreviewUrl(await generateFilePreview(compressed));
+      } catch {
+        setCompressedPreviewUrl("");
+      }
       toast({ title: "Compression complete", description: `Reduced by ${savings}%` });
     } catch {
       setIsCompressing(false);
       toast({ variant: "destructive", title: "Compression failed" });
     }
-  }, [pdfFile, compressionLevel, compressImages, removeMetadata, toast]);
+  }, [pdfFile, compressionLevel, removeMetadata, targetSizeKB, toast]);
 
   const compressionOptions = [
     { value: "low", label: "Low", desc: "High quality, minimal compression" },
@@ -79,8 +99,9 @@ const CompressPdf = () => {
   ] as const;
 
   return (
-    <section className="py-10 bg-[#F5F5F5] min-h-[60vh]">
+    <section className="min-h-[70vh] bg-[#F5F5F5] py-8 sm:py-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <BackToTools />
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 h-0.5 bg-[#E63228]" />
@@ -90,7 +111,7 @@ const CompressPdf = () => {
           <p className="text-[#666] text-sm mt-1">Reduce PDF file size while preserving readability</p>
         </div>
 
-        <div className="max-w-2xl bg-white border border-[#E0E0E0]">
+        <div className="max-w-4xl rounded-[28px] border border-white/80 bg-white/65 shadow-[0_30px_90px_-60px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
           <div className="p-6">
             {!pdfFile ? (
               <FileUpload
@@ -149,6 +170,22 @@ const CompressPdf = () => {
                         </div>
                       ))}
                     </div>
+                    <div className="mt-5 grid gap-4 border-t border-black/[0.06] pt-5 sm:grid-cols-2">
+                      <div>
+                        <Label htmlFor="target-size" className="text-xs font-semibold uppercase tracking-wide text-[#555]">Target size (optional)</Label>
+                        <div className="relative mt-1.5">
+                          <Gauge size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
+                          <input id="target-size" inputMode="numeric" min="1" value={targetSizeKB} onChange={(event) => setTargetSizeKB(event.target.value.replace(/\D/g, ""))} placeholder="e.g. 50" className="h-10 w-full rounded-xl border border-[#D0D0D0] bg-white/80 pl-9 pr-12 text-sm outline-none transition focus:border-[#E63228]" />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#888]">KB</span>
+                        </div>
+                        <p className="mt-1.5 text-[11px] leading-relaxed text-[#888]">Best-effort target; complex pages may need more space to stay readable.</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="output-name" className="text-xs font-semibold uppercase tracking-wide text-[#555]">Output name</Label>
+                        <input id="output-name" value={outputName} onChange={(event) => setOutputName(event.target.value)} className="mt-1.5 h-10 w-full rounded-xl border border-[#D0D0D0] bg-white/80 px-3 text-sm outline-none transition focus:border-[#E63228]" />
+                        <p className="mt-1.5 text-[11px] text-[#888]">Rename the PDF before downloading it.</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -181,11 +218,13 @@ const CompressPdf = () => {
                       </div>
                     </div>
 
+                    <FilePreview files={[compressedPdf.file]} fileType="pdf" previewUrls={compressedPreviewUrl ? [compressedPreviewUrl] : []} showControls={false} className="mb-5" />
+
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <Button onClick={() => downloadFile(compressedPdf.file, compressedPdf.file.name, "application/pdf")} className="bg-[#E63228] text-white hover:bg-[#c4231a] rounded-none font-semibold">
+                      <Button onClick={() => downloadFile(compressedPdf.file, outputName.trim() || compressedPdf.file.name, "application/pdf")} className="rounded-xl bg-[#E63228] text-white hover:bg-[#c4231a] font-semibold">
                         <Download size={15} className="mr-2" /> Download Compressed
                       </Button>
-                      <Button variant="outline" onClick={handleReset} className="border-[#D0D0D0] text-[#0A0A0A] hover:bg-[#F5F5F5] rounded-none">
+                      <Button variant="outline" onClick={handleReset} className="rounded-xl border-[#D0D0D0] text-[#0A0A0A] hover:bg-[#F5F5F5]">
                         Compress Another
                       </Button>
                     </div>
@@ -194,10 +233,10 @@ const CompressPdf = () => {
 
                 {showOptions && !compressedPdf && !isCompressing && (
                   <div className="flex flex-col sm:flex-row gap-3 mt-2">
-                    <Button onClick={handleCompress} disabled={!pdfFile} className="bg-[#E63228] text-white hover:bg-[#c4231a] rounded-none font-semibold">
+                    <Button onClick={handleCompress} disabled={!pdfFile} className="rounded-xl bg-[#E63228] text-white hover:bg-[#c4231a] font-semibold">
                       Compress PDF
                     </Button>
-                    <Button variant="outline" onClick={handleReset} className="border-[#D0D0D0] text-[#0A0A0A] hover:bg-[#F5F5F5] rounded-none">
+                    <Button variant="outline" onClick={handleReset} className="rounded-xl border-[#D0D0D0] text-[#0A0A0A] hover:bg-[#F5F5F5]">
                       Reset
                     </Button>
                   </div>

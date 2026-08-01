@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import FileUpload from "@/components/FileUpload";
+import BackToTools from "@/components/BackToTools";
 import { FileText, Download, PenLine, Trash2, Plus, X, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -313,6 +314,7 @@ const SignPdf = () => {
   return (
     <section className="py-8 sm:py-10 bg-[#F5F5F5] min-h-[70vh]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <BackToTools />
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 h-0.5 bg-[#E63228]" />

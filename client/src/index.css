@@ -11,3 +11,23 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer components {
+  .app-shell main > section:not(:first-child) {
+    position: relative;
+  }
+
+  .equation-preview .katex-display {
+    margin: 0;
+    padding: 0.18em 0;
+    overflow: visible;
+  }
+
+  .equation-preview .katex,
+  .equation-preview .katex-html,
+  .equation-preview .base,
+  .equation-preview .mfrac {
+    overflow: visible;
+  }
+
+}

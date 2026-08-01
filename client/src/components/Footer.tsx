@@ -10,6 +10,7 @@ const tools = [
   { label: "Watermark PDF", href: "/watermark-pdf" },
   { label: "Protect PDF", href: "/lock-pdf" },
   { label: "LaTeX Resume", href: "/latex-resume" },
+  { label: "Drop Vault", href: "/drop" },
   { label: "Resume Builder", href: "/resume-builder" },
 ];
 
@@ -77,17 +78,6 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-[#E7D7D3] flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p className="text-[#333] text-xs">
-            &copy; {new Date().getFullYear()} iHatePDF. All rights reserved.
-          </p>
-          <p className="text-[#333] text-xs">
-            Built by{" "}
-            <a href="https://github.com/cu-sanjay" className="text-[#333] hover:text-[#E63228] transition-colors" target="_blank" rel="noopener noreferrer">
-              Sannjay
-            </a>
-          </p>
-        </div>
       </div>
     </footer>
   );

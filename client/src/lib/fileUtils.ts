@@ -1,7 +1,14 @@
+import { renderPdfThumbnail } from "./pdfjs";
+
 /**
  * Generates a preview URL for a file
  */
-export const generateFilePreview = (file: File): Promise<string> => {
+export const generateFilePreview = async (file: File): Promise<string> => {
+  const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+  if (isPdf) {
+    return renderPdfThumbnail(file, 1.15);
+  }
+
   return new Promise((resolve, reject) => {
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -16,9 +23,6 @@ export const generateFilePreview = (file: File): Promise<string> => {
         reject(new Error('Error reading file'));
       };
       reader.readAsDataURL(file);
-    } else if (file.type === 'application/pdf') {
-      // For PDFs we'll handle preview generation elsewhere using PDF.js
-      resolve(URL.createObjectURL(file));
     } else {
       reject(new Error('Unsupported file type for preview'));
     }
